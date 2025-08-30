@@ -1,5 +1,6 @@
 import AboutSection from "@/components/AboutSection";
-import InfiniteLogos from "@/components/InfiniteLogos"; // <-- importa a seção das logos
+import InfiniteLogos from "@/components/InfiniteLogos";
+import WorkShowcase3D from "@/components/WorkShowcase3D";
 
 export const metadata = {
   title: "Portfólio – Justke",
@@ -52,6 +53,9 @@ export default function Portfolio() {
 
       {/* LOGOS JA FEITAS */}
       <InfiniteLogos />
+
+      {/* Cards 3D das áreas */}
+      <WorkShowcase3D />
 
       <div className="h-20" />
     </main>
