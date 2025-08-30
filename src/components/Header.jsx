@@ -8,7 +8,9 @@ const links = [
   { href: "/portfolio/identidade-visual", label: "Identidade Visual" },
   { href: "/portfolio/web-design", label: "Web Design" },
   { href: "/portfolio/social-media", label: "Social Media" },
+  { href: "/portfolio/programacao", label: "Programação" }, // 🔥 novo
 ];
+
 
 export default function Header() {
   const pathname = usePathname();

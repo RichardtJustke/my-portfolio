@@ -13,13 +13,13 @@ export default function Home() {
           </h1>
 
           <p className="mt-4 text-lg md:text-2xl opacity-80">
-            Identidades visuais, web e motion com aquela crocância ✨
+            Identidades visuais, Posts criativos, Design web criatividade e código que estala na sua tela.
           </p>
           <a
             href="/portfolio"
             className="inline-block mt-8 rounded-xl px-6 py-3 bg-white text-black font-semibold hover:scale-[1.02] active:scale-[0.99] transition shadow-[0_10px_30px_rgba(255,255,255,.15)]"
           >
-            Ver portfólio
+            Ver portifólio
           </a>
         </div>
       </section>
