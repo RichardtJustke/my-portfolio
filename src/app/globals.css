@@ -42,3 +42,19 @@ body {
 .beam:nth-child(2){background:radial-gradient(circle at 70% 40%,#a78bfa,transparent 60%);right:-15%;top:10%;animation-delay:.8s}
 .beam:nth-child(3){background:radial-gradient(circle at 40% 70%,#34d399,transparent 60%);left:10%;bottom:-15%;animation-delay:1.6s}
 .beam-drift{position:absolute;inset:-10%;animation:drift 14s ease-in-out infinite}
+
+/* ==== Logos Marquee ==== */
+.scroller-mask {
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); } /* anda metade porque duplicamos a lista */
+}
+
+.marquee-track {
+  width: max-content;
+  animation: marquee var(--speed, 25s) linear infinite;
+}
