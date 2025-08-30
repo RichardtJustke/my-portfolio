@@ -1,94 +1,79 @@
 "use client";
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
+import {
+  Navbar,
+  NavBody,
+  NavItems,
+  MobileNav,
+  MobileNavHeader,
+  MobileNavMenu,
+  MobileNavToggle,
+} from "@/components/ui/resizable-navbar";
 
 const links = [
-  { href: "/portfolio/identidade-visual", label: "Identidade Visual" },
-  { href: "/portfolio/web-design", label: "Web Design" },
-  { href: "/portfolio/social-media", label: "Social Media" },
-  { href: "/portfolio/programacao", label: "Programação" }, // 🔥 novo
+  { name: "Identidade Visual", link: "/portfolio/identidade-visual" },
+  { name: "Web Design",        link: "/portfolio/web-design" },
+  { name: "Social Media",      link: "/portfolio/social-media" },
+  { name: "Programação",       link: "/portfolio/programacao" },
 ];
 
-
 export default function Header() {
-  const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const isActive = (href) => pathname === href || pathname?.startsWith(href + "/");
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 md:px-6">
-        {/* LOGO (esquerda) */}
-        <Link href="/" className="flex items-center gap-2">
-          <svg width="24" height="24" viewBox="0 0 24 24" className="text-white">
+    <Navbar className="">
+      {/* DESKTOP */}
+      <NavBody className="hidden lg:flex">
+        {/* esquerda: logo */}
+        <Link href="/" className="flex items-center gap-2 text-white">
+          <svg width="22" height="22" viewBox="0 0 24 24">
             <path d="M6 4h6a4 4 0 1 1 0 8H9v8H6V4zm3 5h3a2 2 0 1 0 0-4H9v4z" fill="currentColor"/>
           </svg>
-          <span className="font-bold tracking-tight">Justke</span>
+          <span className="font-semibold tracking-tight">Justke</span>
         </Link>
 
-        {/* LINKS (centro) */}
-        <nav className="hidden md:flex items-center gap-4 lg:gap-8">
-          {links.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition
-                ${isActive(l.href) ? "bg-white/10 text-white" : "text-zinc-300 hover:bg-white/5 hover:text-white"}`}
-            >
-              {l.label}
-            </Link>
-          ))}
-        </nav>
+        {/* centro: itens */}
+        <NavItems items={links} />
 
-        {/* CTA CONTATO (direita) */}
-        <div className="hidden md:block">
-          <Link
-            href="/contato"
-            className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-black transition hover:opacity-90"
-          >
-            Contato
-          </Link>
-        </div>
-
-        {/* MENU MOBILE */}
-        <button
-          onClick={() => setOpen((s) => !s)}
-          aria-label="Abrir menu"
-          className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white"
+        {/* direita: CTA */}
+        <Link
+          href="/contato"
+          className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-black hover:opacity-90"
         >
-          <div className={`relative h-4 w-5 transition-all ${open ? "rotate-45" : ""}`}>
-            <span className={`absolute left-0 top-0 h-0.5 w-5 bg-white transition-all ${open ? "translate-y-2.5" : ""}`} />
-            <span className={`absolute left-0 top-2 h-0.5 w-5 bg-white transition-all ${open ? "opacity-0" : ""}`} />
-            <span className={`absolute left-0 bottom-0 h-0.5 w-5 bg-white transition-all ${open ? "-rotate-90 -translate-y-2.5" : ""}`} />
-          </div>
-        </button>
-      </div>
+          Contato
+        </Link>
+      </NavBody>
 
-      {/* Drawer mobile */}
-      <div className={`md:hidden overflow-hidden border-t border-white/10 transition-[max-height] ${open ? "max-h-96" : "max-h-0"}`}>
-        <nav className="flex flex-col gap-1 px-4 py-3">
-          {links.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              onClick={() => setOpen(false)}
-              className={`rounded-lg px-3 py-2 text-sm font-medium transition 
-                ${isActive(l.href) ? "bg-white/10 text-white" : "text-zinc-300 hover:bg-white/5 hover:text-white"}`}
-            >
-              {l.label}
-            </Link>
-          ))}
-          <Link
-            href="/contato"
-            onClick={() => setOpen(false)}
-            className="mt-2 rounded-full bg-white px-4 py-2 text-center text-sm font-semibold text-black"
-          >
-            Contato
+      {/* MOBILE */}
+      <MobileNav>
+        <MobileNavHeader>
+          <Link href="/" className="flex items-center gap-2 text-white">
+            <svg width="22" height="22" viewBox="0 0 24 24">
+              <path d="M6 4h6a4 4 0 1 1 0 8H9v8H6V4zm3 5h3a2 2 0 1 0 0-4H9v4z" fill="currentColor"/>
+            </svg>
+            <span className="font-semibold tracking-tight">Justke</span>
           </Link>
-        </nav>
-      </div>
-    </header>
+          <button onClick={() => setOpen((s) => !s)} aria-label="Abrir menu">
+            <MobileNavToggle isOpen={open} onClick={() => setOpen((s) => !s)} />
+          </button>
+        </MobileNavHeader>
+
+        <MobileNavMenu isOpen={open} onClose={() => setOpen(false)}>
+          <nav className="flex flex-col gap-1">
+            {links.map((l) => (
+              <Link key={l.link} href={l.link} onClick={() => setOpen(false)}
+                    className="rounded-lg px-3 py-2 text-sm text-zinc-300 hover:text-white hover:bg-white/5">
+                {l.name}
+              </Link>
+            ))}
+            <Link href="/contato" onClick={() => setOpen(false)}
+                  className="mt-2 rounded-full bg-white px-4 py-2 text-center text-sm font-semibold text-black">
+              Contato
+            </Link>
+          </nav>
+        </MobileNavMenu>
+      </MobileNav>
+    </Navbar>
   );
 }

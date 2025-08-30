@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function Portfolio() {
   return (
-    <main className="min-h-screen bg-black text-white flex flex-col items-center px-6">
+    <main className="min-h-screen bg-black text-white flex flex-col items-center px-6 pt-20">
       {/* HERO central */}
       <section className="text-center max-w-4xl pt-24">
         <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
