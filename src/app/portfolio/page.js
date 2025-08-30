@@ -1,6 +1,7 @@
 import AboutSection from "@/components/AboutSection";
 import InfiniteLogos from "@/components/InfiniteLogos";
 import WorkShowcase3D from "@/components/WorkShowcase3D";
+import TypingAnimation from "@/components/TypingAnimation"; // <-- efeito de digitação
 
 export const metadata = {
   title: "Portfólio – Justke",
@@ -11,13 +12,23 @@ export default function Portfolio() {
   return (
     <main className="min-h-screen bg-black text-white flex flex-col items-center px-6 pt-20">
       {/* HERO central */}
-      <section className="text-center max-w-4xl pt-24">
+      <section className="text-center max-w-4xl pt-16 md:pt-24">
         <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
           Design que encanta. Código que gera resultado.
         </h1>
-        <p className="mt-6 text-lg md:text-xl text-zinc-300">
-          Transformo ideias em marcas fortes e experiências digitais inteligentes que conquistam clientes.
-        </p>
+
+        {/* Subtítulo com typing */}
+        <TypingAnimation
+          words={[
+            "Transformo ideias em marcas fortes e experiências digitais inteligentes que conquistam clientes.",
+            "Crio experiências digitais inteligentes.",
+            "Design bonito com código inteligente."
+          ]}
+          typingSpeed={40}
+          pauseTime={1600}
+          loop={true} // digita uma vez e para
+          className="mt-6 block text-lg md:text-xl text-zinc-300"
+        />
       </section>
 
       {/* SERVIÇOS simples */}
