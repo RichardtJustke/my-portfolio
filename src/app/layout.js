@@ -1,8 +1,11 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Meu Site",
-  description: "Portfólio do Justke",
+  title: "Ketsu",
+  description: "colocar o nome da pagina",
+  icons: {
+    icon: "/simbloColor.svg",
+  },
 };
 
 export default function RootLayout({ children }) {

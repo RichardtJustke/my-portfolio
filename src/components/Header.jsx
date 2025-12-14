@@ -27,10 +27,7 @@ export default function Header() {
       <NavBody className="hidden lg:flex">
         {/* esquerda: logo */}
         <Link href="/" className="flex items-center gap-2 text-white">
-          <svg width="22" height="22" viewBox="0 0 24 24">
-            <path d="M6 4h6a4 4 0 1 1 0 8H9v8H6V4zm3 5h3a2 2 0 1 0 0-4H9v4z" fill="currentColor"/>
-          </svg>
-          <span className="font-semibold tracking-tight">Justke</span>
+          <img src="/images/LogoW.png" alt="Justke Logo" className="h-8 w-auto" />
         </Link>
 
         {/* centro: itens */}
@@ -49,10 +46,7 @@ export default function Header() {
       <MobileNav>
         <MobileNavHeader>
           <Link href="/" className="flex items-center gap-2 text-white">
-            <svg width="22" height="22" viewBox="0 0 24 24">
-              <path d="M6 4h6a4 4 0 1 1 0 8H9v8H6V4zm3 5h3a2 2 0 1 0 0-4H9v4z" fill="currentColor"/>
-            </svg>
-            <span className="font-semibold tracking-tight">Justke</span>
+            <img src="/images/LogoW.png" alt="Justke Logo" className="h-8 w-auto" />
           </Link>
           <button onClick={() => setOpen((s) => !s)} aria-label="Abrir menu">
             <MobileNavToggle isOpen={open} onClick={() => setOpen((s) => !s)} />
