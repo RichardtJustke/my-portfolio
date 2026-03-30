@@ -3,13 +3,24 @@ package main
 import (
 	"log"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("oi mundo"))
+	r := chi.NewRouter()
+
+	r.Use(middleware.Logger)
+
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("home"))
+	})
+
+	r.Get("/writing", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("writing"))
 	})
 
 	log.Println("rodando em http://localhost:3000")
-	log.Fatal(http.ListenAndServe(":3000", nil))
+	log.Fatal(http.ListenAndServe(":3000", r))
 }
