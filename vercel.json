@@ -1,19 +1,8 @@
 {
-  "buildCommand": "go build -buildvcs=false -ldflags '-s -w' -o api ./main.go",
-  "outputDirectory": ".",
-  "framework": "go",
-  "env": {
-    "GO_VERSION": "1.21"
+  "build": {
+    "dockerfile": "Dockerfile"
   },
-  "routes": [
-    {
-      "src": "/static/(.*)",
-      "dest": "/static/$1",
-      "methods": ["GET"]
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/api"
-    }
-  ]
+  "env": {
+    "PORT": "3000"
+  }
 }
