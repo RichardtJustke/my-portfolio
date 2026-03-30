@@ -1,7 +1,6 @@
 {
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
+  "name": "my-portfolio",
+  "version": 2,
   "env": {
     "PORT": "3000"
   }
