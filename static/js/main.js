@@ -1,4 +1,4 @@
-// Esfera animada
+// ── Esfera animada ──
 const cv = document.getElementById('sphere')
 if (cv) {
   const cx = cv.getContext('2d')
@@ -27,7 +27,7 @@ if (cv) {
     })()
 }
 
-// Temperatura via wttr.in
+// ── Temperatura via wttr.in ──
 const tempEl = document.getElementById('temp')
 if (tempEl) {
   fetch('https://wttr.in/Sao+Paulo?format=%t')
@@ -36,7 +36,7 @@ if (tempEl) {
     .catch(() => { tempEl.textContent = '' })
 }
 
-// Toggle de tema (só visual por enquanto)
+// ── Toggle de tema ──
 const themeBtn = document.getElementById('themeBtn')
 if (themeBtn) {
   themeBtn.addEventListener('click', () => {

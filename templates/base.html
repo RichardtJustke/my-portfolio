@@ -12,13 +12,13 @@
 </head>
 <body>
 
-  <nav>
-    <div class="nav-left">
-      <a href="/">home</a>
-      <a href="/writing">writing</a>
-    </div>
-    <button class="theme-toggle" id="themeBtn">◐</button>
-  </nav>
+<nav>
+  <div class="nav-left">
+    <a href="/" {{if eq .Page "home"}}class="active"{{end}}>home</a>
+    <a href="/writing" {{if eq .Page "writing"}}class="active"{{end}}>writing</a>
+  </div>
+  <button class="theme-toggle" id="themeBtn">◐</button>
+</nav>
 
   <main>
     {{block "conteudo" .}}{{end}}

@@ -1,14 +1,14 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:      #0c0c0c;
-  --fg:      #d4d4d4;
-  --muted:   #555555;
-  --faint:   #333333;
-  --border:  #181818;
-  --accent:  #3d6fa8;
-  --max-w:   620px;
-  --font:    'IBM Plex Mono', monospace;
+  --bg:     #0c0c0c;
+  --fg:     #d4d4d4;
+  --muted:  #555555;
+  --faint:  #333333;
+  --border: #181818;
+  --accent: #3d6fa8;
+  --max-w:  620px;
+  --font:   'IBM Plex Mono', monospace;
 }
 
 body {
@@ -66,7 +66,7 @@ nav {
 
 .hero canvas { flex-shrink: 0; margin-top: 2px; display: block; }
 
-.name { font-size: 1rem; font-weight: 500; color: #fff; margin-bottom: 0.2rem; }
+.name  { font-size: 1rem; font-weight: 500; color: #fff; margin-bottom: 0.2rem; }
 
 .role {
   font-size: 0.7rem;
@@ -139,14 +139,13 @@ textarea { height: 80px; padding-top: 8px; }
   padding: 0.9rem 0;
   border-bottom: 1px solid var(--border);
   font-size: 0.78rem;
-  cursor: pointer;
   transition: opacity 0.2s;
 }
 
 .link-row:hover { opacity: 0.6; }
 
 .link-name { color: var(--muted); }
-.link-val { color: var(--accent); font-size: 0.72rem; }
+.link-val  { color: var(--accent); font-size: 0.72rem; }
 
 /* ── Assinatura ── */
 .sig {
