@@ -13,6 +13,9 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
+	// Essa linha é o que tava faltando — serve os arquivos da pasta static/
+	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		tmpl := template.Must(template.ParseFiles(
 			"templates/base.html",

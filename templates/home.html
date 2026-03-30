@@ -1,4 +1,53 @@
 {{define "conteudo"}}
-<h1>Richard Justke</h1>
-<p>Backend Engineer</p>
+<div class="wrap">
+
+  <div class="hero">
+    <canvas id="sphere" width="60" height="60"></canvas>
+    <div>
+      <div class="name">Richard Justke</div>
+      <div class="role">BACKEND ENGINEER</div>
+      <div class="bio">Construo sistemas e ferramentas. Apaixonado por Go, infraestrutura e código simples que resolve problemas reais.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="contact-label">CONTACT</div>
+
+  <div class="fields">
+    <div class="row2">
+      <input placeholder="nome" type="text">
+      <input placeholder="email" type="email">
+    </div>
+    <textarea placeholder="mensagem"></textarea>
+  </div>
+
+  <div class="send-row">
+    <button class="send-btn">send message →</button>
+    <span class="hint">ou ↵ enter</span>
+  </div>
+
+  <div class="links">
+    <a href="mailto:hi@richardtjustke.dev" class="link-row">
+      <span class="link-name">email</span>
+      <span class="link-val">hi@richardtjustke.dev ↗</span>
+    </a>
+    <a href="https://github.com/RichardtJustke" target="_blank" class="link-row">
+      <span class="link-name">github</span>
+      <span class="link-val">@RichardtJustke ↗</span>
+    </a>
+    <a href="https://linkedin.com/in/richardtjustke" target="_blank" class="link-row">
+      <span class="link-name">linkedin</span>
+      <span class="link-val">/in/richardtjustke ↗</span>
+    </a>
+  </div>
+
+  <div class="sig">Richard</div>
+
+  <div class="footer">
+    <span>São Paulo, BR</span>
+    <span class="temp" id="temp">—</span>
+  </div>
+
+</div>
 {{end}}

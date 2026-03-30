@@ -5,20 +5,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Richard Justke</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
 
-  <header>
-    <nav>
-      <a href="/">rj</a>
+  <nav>
+    <div class="nav-left">
+      <a href="/">home</a>
       <a href="/writing">writing</a>
-    </nav>
-  </header>
+    </div>
+    <button class="theme-toggle" id="themeBtn">◐</button>
+  </nav>
 
   <main>
     {{block "conteudo" .}}{{end}}
   </main>
 
+  <script src="/static/js/main.js"></script>
 </body>
 </html>
 {{end}}
