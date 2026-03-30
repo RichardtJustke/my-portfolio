@@ -1,7 +1,7 @@
 {
   "name": "my-portfolio",
   "version": 2,
-  "buildCommand": "echo 'Using Docker for build'",
+  "framework": null,
   "env": {
     "PORT": "3000"
   }
