@@ -1,6 +1,7 @@
 package main
 
 import (
+	"html/template"
 	"log"
 	"net/http"
 
@@ -10,15 +11,18 @@ import (
 
 func main() {
 	r := chi.NewRouter()
-
 	r.Use(middleware.Logger)
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("home"))
+		tmpl := template.Must(template.ParseFiles(
+			"templates/base.html",
+			"templates/home.html",
+		))
+		tmpl.ExecuteTemplate(w, "base", nil)
 	})
 
 	r.Get("/writing", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("writing"))
+		w.Write([]byte("writing — em breve"))
 	})
 
 	log.Println("rodando em http://localhost:3000")

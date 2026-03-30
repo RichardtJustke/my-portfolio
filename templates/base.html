@@ -1,0 +1,24 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Richard Justke</title>
+</head>
+<body>
+
+  <header>
+    <nav>
+      <a href="/">rj</a>
+      <a href="/writing">writing</a>
+    </nav>
+  </header>
+
+  <main>
+    {{block "conteudo" .}}{{end}}
+  </main>
+
+</body>
+</html>
+{{end}}
