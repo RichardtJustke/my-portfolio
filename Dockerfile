@@ -8,18 +8,16 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o server .
+RUN go build -buildvcs=false -o server .
 
 # Runtime stage
 FROM alpine:latest
 
 RUN apk --no-cache add ca-certificates
 
-WORKDIR /root/
+WORKDIR /app
 
 COPY --from=builder /app/server .
-COPY --from=builder /app/templates ./templates
-COPY --from=builder /app/static ./static
 
 EXPOSE 3000
 
