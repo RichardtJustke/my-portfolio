@@ -1,27 +1,44 @@
 package main
 
 import (
-	"log"
-	"net/http"
+    "embed"
+    "html/template"
+    "io/fs"
+    "log"
+    "net/http"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+    "github.com/go-chi/chi/v5"
+    "github.com/go-chi/chi/v5/middleware"
 
-	"github.com/RichardtJustke/my-portfolio/handlers"
+    "github.com/RichardtJustke/my-portfolio/handlers"
 )
 
+//go:embed templates static
+var files embed.FS
+
 func main() {
-	r := chi.NewRouter()
-	r.Use(middleware.Logger)
+    // Extrai os arquivos estáticos do embed
+    staticFiles, err := fs.Sub(files, "static")
+    if err != nil {
+        log.Fatal(err)
+    }
 
-	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+    // Passa os templates embedados pros handlers
+    tmpl := template.Must(template.ParseFS(files,
+        "templates/base.html",
+        "templates/home.html",
+    ))
+    handlers.SetTemplates(tmpl)
 
-	r.Get("/", handlers.Home)
+    r := chi.NewRouter()
+    r.Use(middleware.Logger)
 
-	r.Get("/writing", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("writing — em breve"))
-	})
+    r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.FS(staticFiles))))
+    r.Get("/", handlers.Home)
+    r.Get("/writing", func(w http.ResponseWriter, r *http.Request) {
+        w.Write([]byte("writing — em breve"))
+    })
 
-	log.Println("rodando em http://localhost:3000")
-	log.Fatal(http.ListenAndServe(":3000", r))
+    log.Println("rodando em http://localhost:3000")
+    log.Fatal(http.ListenAndServe(":3000", r))
 }
