@@ -168,3 +168,39 @@ textarea { height: 80px; padding-top: 8px; }
 }
 
 .footer .temp { color: var(--accent); }
+
+
+/* ── Blocos de texto ── */
+.block {
+  margin-bottom: 2.5rem;
+}
+
+.block-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  color: var(--faint);
+  margin-bottom: 1rem;
+}
+
+.block p {
+  font-size: 0.82rem;
+  line-height: 1.9;
+  color: var(--muted);
+  max-width: 520px;
+  margin-bottom: 0.75rem;
+}
+
+.block p:last-of-type {
+  margin-bottom: 0;
+}
+
+.block-link {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--accent);
+}
+
+.block-link:hover {
+  opacity: 0.7;
+}
