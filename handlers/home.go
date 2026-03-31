@@ -23,15 +23,15 @@ type HomeData struct {
 }
 
 func Home(w http.ResponseWriter, r *http.Request) {
-    data := HomeData{
-        Name:     "Richard Justke",
-        Role:     "BACKEND ENGINEER",
-        Bio:      "Construo sistemas e ferramentas. Apaixonado por Go, infraestrutura e código simples que resolve problemas reais.",
-        Location: "Brasília, BR",
-        Email:    "rj.justke@gmail.com",
-        GitHub:   "https://github.com/RichardtJustke",
-        LinkedIn: "https://linkedin.com/in/richardtjustke",
-        Page:     "home",
-    }
-    tmpl.ExecuteTemplate(w, "base", data)
+	data := HomeData{
+		Name:     "Richard Justke",
+		Role:     "BACKEND ENGINEER",
+		Bio:      "Construo sistemas e ferramentas. Apaixonado por Go, infraestrutura e código simples que resolve problemas reais.",
+		Location: "Brasília, BR",
+		Email:    "rj.justke@gmail.com",
+		GitHub:   "https://github.com/RichardtJustke",
+		LinkedIn: "https://linkedin.com/in/richardtjustke",
+		Page:     "home",
+	}
+	tmpl.ExecuteTemplate(w, "base", data)
 }

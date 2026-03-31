@@ -23,4 +23,6 @@ COPY --from=builder /app/static ./static
 
 EXPOSE 3000
 
+ENV PORT=3000
+
 CMD ["./server"]
