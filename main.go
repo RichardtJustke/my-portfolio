@@ -19,21 +19,21 @@ import (
 var files embed.FS
 
 func main() {
-    // Extrai os arquivos estáticos do embed
-    staticFiles, err := fs.Sub(files, "static")
-    if err != nil {
-        log.Fatal(err)
-    }
+	// Extrai os arquivos estáticos do embed
+	staticFiles, err := fs.Sub(files, "static")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    // Passa os templates embedados pros handlers
-    tmpl := template.Must(template.ParseFS(files,
-        "templates/base.html",
-        "templates/home.html",
-    ))
-    handlers.SetTemplates(tmpl)
+	// Passa os templates embedados pros handlers
+	tmpl := template.Must(template.ParseFS(files,
+		"templates/base.html",
+		"templates/home.html",
+	))
+	handlers.SetTemplates(tmpl)
 
-    r := chi.NewRouter()
-    r.Use(middleware.Logger)
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
 
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.FS(staticFiles))))
 	r.Get("/", handlers.Home)
@@ -46,7 +46,7 @@ func main() {
 		port = "3000"
 	}
 
-	addr := fmt.Sprintf(":%s", port)
-	log.Printf("rodando em http://localhost:%s\n", port)
+	addr := fmt.Sprintf("0.0.0.0:%s", port)
+	log.Printf("rodando em http://0.0.0.0:%s\n", port)
 	log.Fatal(http.ListenAndServe(addr, r))
 }
