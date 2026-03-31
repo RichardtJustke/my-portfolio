@@ -1,7 +1,0 @@
-{
-  "framework": null,
-  "public": false,
-  "env": {
-    "PORT": "3000"
-  }
-}
