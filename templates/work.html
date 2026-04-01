@@ -1,0 +1,124 @@
+{{define "work"}}
+<div class="wrap">
+
+  <div class="section-block">
+    <div class="block-label">STACK</div>
+    <div class="section-hint">Tools I use daily</div>
+    <div class="stack-grid">
+      {{range .Stack}}
+      <div class="stack-icon">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/{{.Icon}}" alt="{{.Name}}" />
+        <span>{{.Name}}</span>
+      </div>
+      {{end}}
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-block">
+    <div class="block-label">EXPERIENCE</div>
+    <div class="exp-list">
+      {{range .Experiences}}
+      <div class="exp-row">
+        <div class="exp-left">
+          <div class="exp-company">{{.Company}}</div>
+          <div class="exp-role">{{.Role}}</div>
+          <div class="exp-desc">{{.Desc}}</div>
+        </div>
+        <div class="exp-right">
+          <div class="exp-period">{{.Period}}</div>
+          {{if ne .Tag ""}}
+          <span class="exp-tag">{{.Tag}}</span>
+          {{end}}
+        </div>
+      </div>
+      {{end}}
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-block">
+    <div class="block-label">PROJECTS</div>
+    <div class="cards-grid">
+      {{range .Projects}}
+      <div class="card" onclick="openModal('{{.ID}}')">
+        {{if eq .Image ""}}
+        <div class="card-img card-placeholder">No Image</div>
+        {{else if contains .Image ".mp4"}}
+        <video src="{{.Image}}" class="card-img" autoplay muted loop></video>
+        {{else}}
+        <img src="{{.Image}}" alt="{{.Name}}" class="card-img" />
+        {{end}}
+        <div class="card-overlay"></div>
+        <div class="card-body">
+          <div class="card-name">{{.Name}}</div>
+          <div class="card-desc">{{.Desc}}</div>
+          <div class="card-footer">
+            <div class="card-tags">
+              {{if eq .Status "in progress"}}
+              <span class="wip">WIP</span>
+              {{else if eq .Status "soon"}}
+              <span class="wip">SOON</span>
+              {{else}}
+              <span class="wip" style="color:var(--faint); border-color:#1e1e1e;">{{.Status}}</span>
+              {{end}}
+              {{range $i, $tag := .Tags}}
+                {{if lt $i 2}}
+                  <span class="tag">{{$tag}}</span>
+                {{end}}
+              {{end}}
+            </div>
+            <div class="card-arrow">→</div>
+          </div>
+        </div>
+      </div>
+      {{end}}
+    </div>
+  </div>
+
+</div>
+
+<!-- Modals -->
+{{range .Projects}}
+<div class="overlay" id="modal-{{.ID}}" onclick="closeModal(event, '{{.ID}}')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal(event, '{{.ID}}')">×</button>
+    <div class="modal-header">
+      <div class="modal-label">{{.Label}}</div>
+      <div class="modal-title">{{.Name}}</div>
+      <div class="modal-tags">
+        {{range .Tech}}
+        <span class="modal-tag">{{.}}</span>
+        {{end}}
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">ABOUT</div>
+      <div class="modal-text">{{.About}}</div>
+      
+      <div class="modal-divider"></div>
+      
+      <div class="modal-section">CHALLENGE</div>
+      <div class="modal-text">{{.Challenge}}</div>
+
+      {{if ne .Link ""}}
+      <a href="{{.Link}}" target="_blank" class="modal-link">View Project ↗</a>
+      {{end}}
+    </div>
+  </div>
+</div>
+{{end}}
+
+<script>
+function openModal(id) {
+  document.getElementById('modal-' + id).classList.add('open');
+}
+function closeModal(e, id) {
+  if (e.target.classList.contains('overlay') || e.target.classList.contains('modal-close')) {
+    document.getElementById('modal-' + id).classList.remove('open');
+  }
+}
+</script>
+{{end}}

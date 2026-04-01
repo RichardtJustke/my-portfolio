@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -15,7 +16,7 @@ import (
 	"github.com/RichardtJustke/my-portfolio/handlers"
 )
 
-//go:embed templates static
+//go:embed templates static assets
 var files embed.FS
 
 func main() {
@@ -25,8 +26,16 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Extrai os arquivos de assets
+	assetsFiles, err := fs.Sub(files, "assets")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// Passa os templates embedados pros handlers
-	tmpl := template.Must(template.ParseFS(files,
+	tmpl := template.Must(template.New("").Funcs(template.FuncMap{
+		"contains": strings.Contains,
+	}).ParseFS(files,
 		"templates/base.html",
 		"templates/home.html",
 		"templates/work.html",
@@ -37,6 +46,7 @@ func main() {
 	r.Use(middleware.Logger)
 
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.FS(staticFiles))))
+	r.Handle("/assets/*", http.StripPrefix("/assets/", http.FileServer(http.FS(assetsFiles))))
 	r.Get("/", handlers.Home)
 	r.Get("/work", handlers.Work)
 	r.Get("/writing", func(w http.ResponseWriter, r *http.Request) {

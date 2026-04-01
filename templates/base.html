@@ -15,13 +15,13 @@
 <nav>
   <div class="nav-left">
     <a href="/" {{if eq .Page "home"}}class="active"{{end}}>home</a>
-    <a href="/writing" {{if eq .Page "writing"}}class="active"{{end}}>writing</a>
+    <a href="/work" {{if eq .Page "work"}}class="active"{{end}}>work</a>
   </div>
   <button class="theme-toggle" id="themeBtn">◐</button>
 </nav>
 
   <main>
-    {{block "conteudo" .}}{{end}}
+    {{if eq .Page "home"}}{{template "home" .}}{{else if eq .Page "work"}}{{template "work" .}}{{end}}
   </main>
 
   <script src="/static/js/main.js"></script>
