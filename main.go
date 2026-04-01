@@ -29,6 +29,7 @@ func main() {
 	tmpl := template.Must(template.ParseFS(files,
 		"templates/base.html",
 		"templates/home.html",
+		"templates/work.html",
 	))
 	handlers.SetTemplates(tmpl)
 
@@ -37,6 +38,7 @@ func main() {
 
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.FS(staticFiles))))
 	r.Get("/", handlers.Home)
+	r.Get("/work", handlers.Work)
 	r.Get("/writing", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("writing — em breve"))
 	})
