@@ -1,3 +1,18 @@
+// ── Tema ──
+const themeBtn = document.getElementById('themeBtn')
+const savedTheme = localStorage.getItem('theme') || 'dark'
+
+if (savedTheme === 'light') {
+  document.body.classList.add('light')
+}
+
+if (themeBtn) {
+  themeBtn.addEventListener('click', () => {
+    const isLight = document.body.classList.toggle('light')
+    localStorage.setItem('theme', isLight ? 'light' : 'dark')
+  })
+}
+
 // ── Esfera animada ──
 const cv = document.getElementById('sphere')
 if (cv) {
@@ -27,19 +42,15 @@ if (cv) {
     })()
 }
 
-// ── Temperatura via wttr.in ──
+// ── Temperatura via wttr.in (Brasília) ──
 const tempEl = document.getElementById('temp')
 if (tempEl) {
-  fetch('https://wttr.in/Sao+Paulo?format=%t')
+  fetch('https://wttr.in/Brasilia?format=%t')
     .then(r => r.text())
-    .then(d => { tempEl.textContent = d.trim() })
-    .catch(() => { tempEl.textContent = '' })
-}
-
-// ── Toggle de tema ──
-const themeBtn = document.getElementById('themeBtn')
-if (themeBtn) {
-  themeBtn.addEventListener('click', () => {
-    document.body.classList.toggle('light')
-  })
+    .then(d => { 
+      tempEl.innerHTML = `<i class="fas fa-cloud"></i> ${d.trim()}`
+    })
+    .catch(() => { 
+      tempEl.innerHTML = `<i class="fas fa-cloud"></i> —`
+    })
 }

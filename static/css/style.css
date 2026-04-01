@@ -11,12 +11,22 @@
   --font:   'IBM Plex Mono', monospace;
 }
 
+body.light {
+  --bg:     #fafafa;
+  --fg:     #1a1a1a;
+  --muted:  #666666;
+  --faint:  #999999;
+  --border: #e5e5e5;
+  --accent: #2563eb;
+}
+
 body {
   background: var(--bg);
   color: var(--fg);
   font-family: var(--font);
   min-height: 100vh;
   padding-bottom: 5rem;
+  transition: background 0.3s, color 0.3s;
 }
 
 a { color: inherit; text-decoration: none; }
@@ -38,15 +48,24 @@ nav {
 .nav-left a:hover { color: var(--fg); }
 
 .theme-toggle {
-  width: 28px;
-  height: 28px;
-  border: 1px solid #222;
-  background: none;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  background: transparent;
   color: var(--faint);
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: 0.9rem;
   border-radius: 50%;
   font-family: var(--font);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.theme-toggle:hover {
+  color: var(--fg);
+  border-color: var(--fg);
 }
 
 /* ── Layout ── */
@@ -147,6 +166,13 @@ textarea { height: 80px; padding-top: 8px; }
 .link-name { color: var(--muted); }
 .link-val  { color: var(--accent); font-size: 0.72rem; }
 
+.link-name i {
+  margin-right: 0.4rem;
+  width: 14px;
+  text-align: center;
+  color: var(--accent);
+}
+
 /* ── Assinatura ── */
 .sig {
   text-align: center;
@@ -167,7 +193,14 @@ textarea { height: 80px; padding-top: 8px; }
   border-top: 1px solid var(--border);
 }
 
-.footer .temp { color: var(--accent); }
+.footer span i {
+  margin-right: 0.35rem;
+  color: var(--accent);
+}
+
+.footer .temp { 
+  color: var(--accent); 
+}
 
 
 /* ── Blocos de texto ── */
