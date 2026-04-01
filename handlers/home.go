@@ -26,7 +26,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 	data := HomeData{
 		Name:     "Richard Justke",
 		Role:     "BACKEND ENGINEER",
-		Bio:      "Construo sistemas e ferramentas. Apaixonado por Go, infraestrutura e código simples que resolve problemas reais.",
+		Bio:      "I build systems and tools. Passionate about Go, infrastructure, and simple code that solves real problems.",
 		Location: "Brasília, BR",
 		Email:    "rj.justke@gmail.com",
 		GitHub:   "https://github.com/RichardtJustke",
