@@ -202,6 +202,20 @@ textarea { height: 80px; padding-top: 8px; }
   color: var(--accent); 
 }
 
+/* ── Copyright ── */
+.copyright {
+  text-align: center;
+  font-size: 0.65rem;
+  color: var(--faint);
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  margin-top: 1.5rem;
+}
+
+.copyright p {
+  margin: 0;
+}
+
 
 /* ── Blocos de texto ── */
 .block {
