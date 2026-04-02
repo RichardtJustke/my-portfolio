@@ -1,2 +1,11 @@
 nohup: ignorando entrada
 2026/04/01 22:01:38 rodando em http://0.0.0.0:3000
+2026/04/01 22:02:50 "GET http://localhost:3000/ HTTP/1.1" from 127.0.0.1:42882 - 200 5092B in 2.033671ms
+2026/04/01 22:02:51 "GET http://localhost:3000/static/css/style.css HTTP/1.1" from 127.0.0.1:42882 - 200 11309B in 18.016814ms
+2026/04/01 22:02:51 "GET http://localhost:3000/static/js/main.js HTTP/1.1" from 127.0.0.1:42884 - 200 2297B in 16.65765ms
+2026/04/01 22:03:16 "GET http://localhost:3000/work HTTP/1.1" from 127.0.0.1:42882 - 200 16823B in 1.83277ms
+2026/04/01 22:03:17 "GET http://localhost:3000/static/css/style.css HTTP/1.1" from 127.0.0.1:42884 - 200 11309B in 239.974µs
+2026/04/01 22:03:17 "GET http://localhost:3000/static/js/main.js HTTP/1.1" from 127.0.0.1:42884 - 200 2297B in 760.154µs
+2026/04/01 22:03:17 "GET http://localhost:3000/assets/chicas.jpg HTTP/1.1" from 127.0.0.1:42882 - 200 180162B in 1.638843ms
+2026/04/01 22:03:17 "GET http://localhost:3000/assets/tonho.jpg HTTP/1.1" from 127.0.0.1:42884 - 200 189294B in 2.093614ms
+2026/04/01 22:03:17 "GET http://localhost:3000/assets/Reboot4.jpg HTTP/1.1" from 127.0.0.1:39182 - 200 418531B in 5.060761ms
