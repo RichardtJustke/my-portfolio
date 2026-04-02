@@ -11,7 +11,7 @@
 🔗 **[richardtjustke.dev](https://richardtjustke.dev)**
 
 <!-- Add a short screen recording or GIF here -->
-![Demo](./docs/demo.gif)
+![Demo](./docs/demo.mp4)
 
 ---
 
