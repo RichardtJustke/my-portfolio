@@ -1,14 +1,31 @@
 // ── Tema ──
 const themeBtn = document.getElementById('themeBtn')
+const sunIcon = document.getElementById('sunIcon')
+const moonIcon = document.getElementById('moonIcon')
 const savedTheme = localStorage.getItem('theme') || 'dark'
+
+function updateThemeIcon() {
+  const isLight = document.body.classList.contains('light')
+  if (isLight) {
+    sunIcon.style.display = 'inline'
+    moonIcon.style.display = 'none'
+  } else {
+    sunIcon.style.display = 'none'
+    moonIcon.style.display = 'inline'
+  }
+}
 
 if (savedTheme === 'light') {
   document.body.classList.add('light')
 }
 
+updateThemeIcon()
+
 if (themeBtn) {
   themeBtn.addEventListener('click', () => {
-    const isLight = document.body.classList.toggle('light')
+    document.body.classList.toggle('light')
+    updateThemeIcon()
+    const isLight = document.body.classList.contains('light')
     localStorage.setItem('theme', isLight ? 'light' : 'dark')
   })
 }

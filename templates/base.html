@@ -4,7 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Richard Justke</title>
+  <title>Richardt Justke</title>
+  <link rel="icon" href="/assets/favicon.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
@@ -19,7 +20,8 @@
     <a href="/work" {{if eq .Page "work"}}class="active"{{end}}>work</a>
   </div>
   <button class="theme-toggle" id="themeBtn" title="Toggle theme">
-    <i class="fas fa-circle-half-stroke"></i>
+    <i class="fas fa-sun" id="sunIcon" style="display:none;"></i>
+    <i class="fas fa-moon" id="moonIcon"></i>
   </button>
 </nav>
 

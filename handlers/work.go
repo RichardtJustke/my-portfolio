@@ -71,6 +71,13 @@ func Work(w http.ResponseWriter, r *http.Request) {
 				Tag:     "founder",
 			},
 			{
+				Company: "Korus",
+				Role:    "Design Manager",
+				Desc:    "Marketing startup. Managed everything from social media to visual identity. Responsible for design strategy and brand development.",
+				Period:  "June — October 2025",
+				Tag:     "",
+			},
+			{
 				Company: "Eletronorte",
 				Role:    "Administrative Assistant",
 				Desc:    "Telecom. Spreadsheet automation, design and IT support.",
