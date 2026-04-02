@@ -66,8 +66,8 @@ func Work(w http.ResponseWriter, r *http.Request) {
 			{
 				Company: "Ketsu",
 				Role:    "Founder · Designer · Developer",
-				Desc:    "Digital services startup. 3 years of design and development experience.",
-				Period:  "2022 — present",
+				Desc:    "Development and creation startup, focusing on both design and software development. I applied my 3+ years of design experience to found the company.",
+				Period:  "October 2025 — present",
 				Tag:     "founder",
 			},
 			{

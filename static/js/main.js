@@ -49,7 +49,11 @@ if (cv) {
           if (d > 0.05) {
             cx.beginPath()
             cx.arc(x, y, d * 1.4 + 0.3, 0, Math.PI * 2)
-            cx.fillStyle = `rgba(61,111,168,${0.15 + d * 0.85})`
+            const isLight = document.body.classList.contains('light')
+            const r = 255
+            const g = isLight ? 140 : 107
+            const b = isLight ? 66 : 53
+            cx.fillStyle = `rgba(${r}, ${g}, ${b}, ${0.15 + d * 0.85})`
             cx.fill()
           }
         }
