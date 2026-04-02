@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# richardtjustke.dev
 
-## Getting Started
+> A minimalist portfolio built with Go — deliberately choosing the harder path to actually learn something.
 
-First, run the development server:
+![Portfolio Preview](./docs/preview.png)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## Demo
+
+🔗 **[richardtjustke.dev](https://richardtjustke.dev)**
+
+<!-- Add a short screen recording or GIF here -->
+![Demo](./docs/demo.mp4)
+
+---
+
+## Why Go instead of React?
+
+I have a React background. Building this in React would have taken a weekend.
+
+That's exactly why I didn't.
+
+The goal wasn't to ship fast — it was to learn Go's `net/http`, understand how a server actually works, and stop relying on abstractions I don't fully understand. Every CSS file that didn't load, every template that broke, every middleware I had to wire up manually — that was the point.
+
+---
+
+## Stack
+
+| Layer | Choice |
+|---|---|
+| Language | Go |
+| Router | [Chi](https://github.com/go-chi/chi) |
+| Templates | `html/template` (Go stdlib) |
+| Markdown | [goldmark](https://github.com/yuin/goldmark) |
+| Font | IBM Plex Mono |
+| Weather | [wttr.in](https://wttr.in) API |
+| Hosting | — |
+
+No frameworks. No bundlers. No node_modules.
+
+---
+
+## Features
+
+- **Dark minimalist design** — `#0c0c0c` background, IBM Plex Mono, blue accent `#3d6fa8`
+- **Canvas dot-sphere animation** — generative animation rendered beside my name
+- **Live temperature in footer** — fetched from `wttr.in` on each request
+- **Borderless contact form** — clean, no distractions
+- **/writing page** — markdown-powered, rendered server-side with goldmark
+
+---
+
+## Project Structure
+
+```
+my-portfolio/
+├── main.go
+├── handlers/
+│   └── home.go
+├── templates/
+│   ├── base.html
+│   ├── home.html
+│   └── writing.html
+└── static/
+    ├── css/
+    └── js/
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Running Locally
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+git clone https://github.com/RichardtJustke/my-portfolio
+cd my-portfolio
+go run main.go
+```
 
-## Learn More
+Server starts at `http://localhost:3000`.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Key Learnings
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Static file serving** requires explicit middleware in Go — `http.StripPrefix` is not optional.
 
-## Deploy on Vercel
+```go
+r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Forgetting this was my first real stumbling block. Figuring it out was satisfying in a way that `import styles from './styles.css'` never is.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## License
+
+MIT
