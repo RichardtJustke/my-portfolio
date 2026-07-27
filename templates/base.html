@@ -1,0 +1,47 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Richardt Justke</title>
+  <link rel="icon" href="/assets/favicon.png?v=3" type="image/png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#111111">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/static/css/style.css">
+
+</head>
+<body>
+<nav>
+  <div class="nav-left">
+    <a href="/" {{if eq .Page "home"}}class="active"{{end}}>home</a>
+    <a href="/work" {{if eq .Page "work"}}class="active"{{end}}>work</a>
+  </div>
+
+</nav>
+
+  <main>
+    {{if eq .Page "home"}}{{template "home" .}}{{else if eq .Page "work"}}{{template "work" .}}{{else if eq .Page "resume"}}{{template "resume" .}}{{end}}
+  </main>
+
+  <div id="previewCard" class="preview-card"></div>
+
+  <script src="/static/js/main.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').then(registration => {
+          console.log('SW registered:', registration.scope);
+        }).catch(error => {
+          console.log('SW registration failed:', error);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
+{{end}}

@@ -1,0 +1,451 @@
+{{define "clock"}}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>relógio — Brasília</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-1: #07090f;
+      --bg-2: #0b0b0b;
+      --card-bg: #0f0f10;
+      --card-inner: #111214;
+      --digit: #d9d9db;
+      --muted: #7f7f85;
+      --shadow: rgba(0,0,0,0.6);
+      --accent-amber: #c78b4a;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
+      color: var(--digit);
+      font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+    }
+
+    .clock-shell {
+      display: block;
+      padding: 28px 32px 18px 32px;
+      border-radius: 18px;
+      background: radial-gradient(800px 250px at 10% 10%, rgba(255,255,255,0.02), transparent), rgba(0,0,0,0.45);
+      box-shadow: 0 24px 60px rgba(2,6,23,0.7);
+      width: min(1100px, 96vw);
+      margin: 0 auto;
+    }
+
+    .clock-meta {
+      color: var(--muted);
+      font-size: 0.78rem;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* Flip clock layout */
+    .flip-clock {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* larger cards so clock is prominent */
+    .flip-card {
+      width: clamp(220px, 30vw, 420px);
+      height: clamp(220px, 30vw, 420px);
+      border-radius: 18px;
+      background: linear-gradient(180deg, var(--card-bg), var(--card-inner));
+      box-shadow: 0 18px 60px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.02);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* subtle horizontal fold */
+    .flip-card::before {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; top: 50%; height: 2px;
+      transform: translateY(-1px);
+      background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(0,0,0,0.25));
+      mix-blend-mode: overlay;
+      pointer-events: none;
+    }
+
+    /* top highlight to mimic the physical panel */
+    .flip-card::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; top: 0; height: 48%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+      pointer-events: none;
+    }
+
+    .digit {
+      font-weight: 700;
+      font-size: clamp(4.6rem, 14vw, 10.6rem);
+      color: var(--digit);
+      line-height: 0.9;
+      letter-spacing: -0.02em;
+      transform: translateY(-6px);
+    }
+
+
+    /* divider between hours and minutes */
+    .colon {
+      font-size: clamp(3rem, 8vw, 5.2rem);
+      color: var(--muted);
+      padding-top: clamp(14px, 3vw, 22px);
+      padding-bottom: clamp(14px, 3vw, 22px);
+    }
+
+    .date {
+      margin-top: 18px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.98rem;
+      text-transform: capitalize;
+    }
+
+    /* Footer */
+    .clock-footer {
+      display: flex;
+      justify-content: center;
+      padding: 12px 0 6px 0;
+      margin-top: 8px;
+    }
+
+    .toggle-btn {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      transition: all 160ms ease;
+    }
+
+    .toggle-btn:hover { transform: translateY(-2px); color: var(--digit); border-color: rgba(255,255,255,0.12); }
+
+    /* Welcome view (alternate) */
+    .welcome-view { display: none; color: var(--muted); }
+    .welcome-grid { display: flex; gap: 28px; align-items: flex-start; justify-content: space-between; }
+    .welcome-art { width: 440px; height: 640px; object-fit: cover; border-radius: 8px; box-shadow: inset 0 2px 8px rgba(255,255,255,0.02), 0 18px 60px rgba(0,0,0,0.6); }
+    .welcome-content { flex: 1 1 480px; padding-left: 8px; }
+    .welcome-content h1 { color: var(--digit); font-weight: 700; font-size: 2.2rem; margin-bottom: 10px; letter-spacing: 0.04em; }
+    .welcome-time { font-family: 'Courier New', monospace; color: var(--accent-amber); margin-bottom: 18px; font-size: 1rem; }
+    .welcome-columns { display: flex; gap: 48px; color: var(--muted); font-size: 1.05rem; }
+    .welcome-columns ul { list-style: none; margin-top: 6px; padding: 0; }
+    .welcome-columns li { margin: 10px 0; }
+    .welcome-columns a { color: var(--muted); text-decoration: none; font-weight: 600; padding: 6px 0; display: inline-block; }
+    .welcome-columns a:hover { color: var(--digit); }
+
+    @media (max-width: 1024px) {
+      .welcome-grid { flex-direction: column; align-items: center; }
+      .welcome-art { width: 80%; height: auto; max-height: 420px; }
+      .welcome-content { width: 100%; padding-left: 0; }
+      .flip-card { width: 180px; height: 180px; }
+      .digit { font-size: 3.6rem; }
+    }
+
+    /* Dock (bottom hub) styles */
+    .dock {
+      position: fixed;
+      left: 50%;
+      bottom: 28px;
+      transform: translateX(-50%);
+      z-index: 1200;
+      pointer-events: auto;
+    }
+
+    .dock-inner {
+      display: flex;
+      gap: 14px;
+      align-items: flex-end;
+      padding: 10px 18px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.03);
+      box-shadow: 0 12px 40px rgba(2,6,23,0.6);
+      backdrop-filter: blur(8px) saturate(140%);
+      -webkit-backdrop-filter: blur(8px) saturate(140%);
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .dock-item {
+      display: inline-flex;
+      width: 64px;
+      height: 64px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      color: #ffffff;
+      text-decoration: none;
+      transition: transform 180ms ease, color 180ms ease, filter 220ms ease;
+      will-change: transform;
+      /* mimic work page icons: monochrome + subtle brightness */
+      background: transparent;
+    }
+
+    /* FontAwesome sizing inside dock items */
+    .dock-item img { width: 36px; height: 36px; object-fit: contain; filter: grayscale(1) brightness(0.6); transition: filter 220ms ease, transform 220ms ease; }
+    .dock-item.dock-center img { width: 44px; height: 44px; }
+    .dock-item svg { width: 36px; height: 36px; fill: currentColor; filter: grayscale(1) brightness(0.6); transition: filter 220ms ease, transform 220ms ease; }
+
+    /* Hover / focus: remove grayscale and slightly scale like work icons */
+    .dock-item:hover img,
+    .dock-item:focus img,
+    .dock-item:hover svg,
+    .dock-item:focus svg {
+      color: var(--accent-amber);
+      filter: grayscale(0) brightness(1);
+      transform: scale(1.15);
+      outline: none;
+    }
+
+    @media (max-width: 520px) {
+      .dock-inner { padding: 8px 12px; gap: 8px; }
+      .dock-item { width: 46px; height: 46px; border-radius: 10px; }
+      .dock-item svg { width: 28px; height: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <section class="clock-shell">
+    <div class="clock-meta">
+      <span>Brasília</span>
+      <span>GMT-3</span>
+    </div>
+
+    <div class="views">
+      <div class="flip-clock" id="clock">
+        <div class="flip-card">
+          <div class="digit" id="hours">--</div>
+        </div>
+
+        <div class="colon">:</div>
+
+        <div class="flip-card">
+          <div class="digit" id="minutes">--</div>
+        </div>
+      </div>
+
+      <div class="welcome-view" id="welcome">
+        <div class="welcome-grid">
+          <!-- Use attached image 1 as the art. If this file path does not work when served by your app,
+               replace the src with a path from your static assets folder. -->
+          <img class="welcome-art" id="welcome-art" src="/assets/imagepage.jpeg" alt="art">
+
+          <div class="welcome-content">
+            <h1>Welcome back!</h1>
+            <div class="welcome-time" id="welcome-time">--</div>
+            <div class="welcome-columns">
+              <div class="col">
+                <div>~/general ✏️</div>
+                <ul>
+                  <li><a href="#" target="_blank" rel="noopener">Email</a></li>
+                  <li><a href="#" target="_blank" rel="noopener">Instagram</a></li>
+                  <li><a href="#" target="_blank" rel="noopener">YouTube</a></li>
+                </ul>
+              </div>
+
+              <div class="col">
+                <div>~/dev 💻</div>
+                <ul>
+                  <li><a href="#" target="_blank" rel="noopener">CLI</a></li>
+                  <li><a href="#" target="_blank" rel="noopener">GitHub</a></li>
+                  <li><a href="#" target="_blank" rel="noopener">Dots</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="date" id="date"></div>
+
+    <div class="clock-footer">
+      <button class="toggle-btn" id="toggleStyleBtn">Alternar visual</button>
+    </div>
+  </section>
+
+    
+    <!-- Dock (hub) -->
+    <div id="dock" class="dock">
+      <div class="dock-inner" role="navigation" aria-label="Dock">
+        <!-- WhatsApp -->
+        <a class="dock-item" href="#" title="WhatsApp" aria-label="WhatsApp">
+          <img src="/assets/icons/whatsapp.svg" alt="WhatsApp" />
+        </a>
+
+        <!-- Google -->
+        <a class="dock-item" href="#" title="Google" aria-label="Google">
+          <img src="/assets/icons/google.svg" alt="Google" />
+        </a>
+
+        <!-- YouTube -->
+        <a class="dock-item" href="#" title="YouTube" aria-label="YouTube">
+          <img src="/assets/icons/youtube.svg" alt="YouTube" />
+        </a>
+
+        <!-- Lovable (heart) -->
+        <a class="dock-item" href="#" title="Lovable" aria-label="Lovable">
+          <img src="/assets/icons/heart.svg" alt="Lovable" />
+        </a>
+
+        <!-- GitHub -->
+        <a class="dock-item" href="#" title="GitHub" aria-label="GitHub">
+          <img src="/assets/icons/github.svg" alt="GitHub" />
+        </a>
+
+        <!-- Center hub: Bilibili icon -->
+        <a class="dock-item dock-center" href="https://richardtjustke.tech" title="richardtjustke.tech" target="_blank" rel="noopener" aria-label="richardtjustke.tech">
+          <img src="/assets/icons/bilibili.svg" alt="Hub" />
+        </a>
+
+        <!-- Oracle Cloud -->
+        <a class="dock-item" href="#" title="Oracle Cloud" aria-label="Oracle Cloud">
+          <img src="/assets/icons/oracle.svg" alt="Oracle" />
+        </a>
+
+        <!-- Cloud (generic) -->
+        <a class="dock-item" href="#" title="Cloud" aria-label="Cloud">
+          <img src="/assets/icons/cloud.svg" alt="Cloud" />
+        </a>
+      </div>
+    </div>
+
+  <script>
+    function pad(v) { return String(v).padStart(2, '0'); }
+
+    // mode: 'flip' or 'welcome'
+    function setMode(mode) {
+      const welcome = document.getElementById('welcome');
+      const clock = document.getElementById('clock');
+      const btn = document.getElementById('toggleStyleBtn');
+      if (mode === 'welcome') {
+        welcome.style.display = 'block';
+        clock.style.display = 'none';
+        btn.textContent = 'Mostrar relógio';
+      } else {
+        welcome.style.display = 'none';
+        clock.style.display = 'flex';
+        btn.textContent = 'Alternar visual';
+      }
+      localStorage.setItem('clockMode', mode);
+    }
+
+    function update() {
+      const now = new Date();
+      // 24-hour time (no AM/PM)
+      const parts = new Intl.DateTimeFormat('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+      }).formatToParts(now);
+
+      let h = '--', m = '--', s = '--';
+      for (const p of parts) {
+        if (p.type === 'hour') h = p.value;
+        if (p.type === 'minute') m = p.value;
+        if (p.type === 'second') s = p.value;
+      }
+
+      // ensure two digits
+      h = pad(h);
+      m = pad(m);
+
+      document.getElementById('hours').textContent = h;
+      document.getElementById('minutes').textContent = m;
+
+      const dateStr = new Intl.DateTimeFormat('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+      }).format(now);
+      document.getElementById('date').textContent = dateStr;
+
+      // welcome view time string (like "Sunday, 16:56:27 | 25/08/2024")
+      const shortDate = new Intl.DateTimeFormat('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        day: '2-digit', month: '2-digit', year: 'numeric'
+      }).format(now);
+      const timeStr = new Intl.DateTimeFormat('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+      }).format(now);
+      const weekday = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(now);
+      const welcomeTime = `${weekday}, ${timeStr} | ${shortDate}`;
+      const welcomeEl = document.getElementById('welcome-time');
+      if (welcomeEl) welcomeEl.textContent = welcomeTime;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('toggleStyleBtn');
+      btn.addEventListener('click', () => {
+        const mode = localStorage.getItem('clockMode') === 'welcome' ? 'flip' : 'welcome';
+        setMode(mode);
+      });
+
+      const saved = localStorage.getItem('clockMode') || 'flip';
+      setMode(saved);
+
+      update();
+      setInterval(update, 1000);
+
+      // Dock magnify logic
+      const dock = document.getElementById('dock');
+      const items = Array.from(dock.querySelectorAll('.dock-item'));
+      const maxScale = 1.8;
+      const influence = 120; // px
+
+      function onMove(e) {
+        const rect = dock.getBoundingClientRect();
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
+        items.forEach(item => {
+          const r = item.getBoundingClientRect();
+          const ix = r.left + r.width/2;
+          const iy = r.top + r.height/2;
+          const dx = Math.abs(ix - mouseX);
+          const dy = Math.abs(iy - mouseY);
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          const k = Math.max(0, (influence - dist) / influence);
+          const scale = 1 + (maxScale - 1) * k;
+          item.style.transform = `translateY(${ -8 * k }px) scale(${scale})`;
+          item.style.zIndex = Math.round(1000 * scale);
+        });
+      }
+
+      function resetItems() {
+        items.forEach(item => {
+          item.style.transform = '';
+          item.style.zIndex = '';
+        });
+      }
+
+      dock.addEventListener('mousemove', onMove);
+      dock.addEventListener('mouseleave', resetItems);
+
+      // Make dock keyboard accessible: scale on focus
+      items.forEach(item => {
+        item.addEventListener('focus', () => { item.style.transform = 'translateY(-6px) scale(1.25)'; });
+        item.addEventListener('blur', () => { item.style.transform = ''; });
+      });
+    });
+  </script>
+</body>
+</html>
+{{end}}
