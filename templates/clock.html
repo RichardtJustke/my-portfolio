@@ -33,21 +33,44 @@
       align-items: center;
       justify-content: center;
       padding: 40px 24px 100px 24px;
+      position: relative;
     }
+
+    /* wallpaper layer */
+    .wallpaper-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: none;
+    }
+
+    .wallpaper-bg.active {
+      display: block;
+    }
+
+    /* dark overlay for readability */
+    .wallpaper-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(9, 9, 11, 0.55);
+    }
+
+    body > *:not(.wallpaper-bg) { position: relative; z-index: 1; }
 
     a { color: inherit; text-decoration: none; }
 
     /* ══════════════════════════════════
-       FLIP CLOCK VIEW
+       VIEWS — shared container
        ══════════════════════════════════ */
-    .clock-container {
-      width: min(1000px, 92vw);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+    .view { display: none; width: min(1000px, 92vw); }
+    .view.active { display: flex; flex-direction: column; align-items: center; }
+    .view-welcome.active { align-items: flex-start; flex-direction: row; gap: 40px; }
 
-    /* top meta row */
+    /* ── top meta ── */
     .clock-meta {
       width: 100%;
       display: flex;
@@ -62,30 +85,9 @@
       margin-bottom: 32px;
     }
 
-    .meta-controls {
-      display: flex;
-      gap: 12px;
-    }
-
-    .ctrl-btn {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      font-family: var(--mono);
-      font-size: 10px;
-      letter-spacing: 0.08em;
-      padding: 5px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: color 0.2s ease, border-color 0.2s ease;
-    }
-
-    .ctrl-btn:hover {
-      color: var(--fg);
-      border-color: var(--faint);
-    }
-
-    /* flip clock cards */
+    /* ══════════════════════════════════
+       VIEW: FLIP CLOCK
+       ══════════════════════════════════ */
     .flip-clock {
       display: flex;
       align-items: center;
@@ -93,15 +95,19 @@
       justify-content: center;
     }
 
-    .flip-unit {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    .flip-unit { display: flex; flex-direction: column; align-items: center; }
+
+    /* ── Flip Card with animation ── */
+    .flip-card {
+      width: clamp(120px, 18vw, 220px);
+      height: clamp(140px, 20vw, 240px);
+      position: relative;
+      perspective: 600px;
     }
 
-    .flip-card {
-      width: clamp(160px, 24vw, 280px);
-      height: clamp(180px, 26vw, 300px);
+    .flip-card-inner {
+      width: 100%;
+      height: 100%;
       background: #111113;
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -112,8 +118,8 @@
       overflow: hidden;
     }
 
-    /* fold line across the middle */
-    .flip-card::before {
+    /* fold line */
+    .flip-card-inner::before {
       content: '';
       position: absolute;
       left: 0; right: 0; top: 50%;
@@ -123,8 +129,8 @@
       z-index: 5;
     }
 
-    /* top half subtle brightness */
-    .flip-card::after {
+    /* top half brightness */
+    .flip-card-inner::after {
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0;
@@ -136,10 +142,52 @@
     .flip-digit {
       font-family: var(--mono);
       font-weight: 700;
-      font-size: clamp(5rem, 14vw, 10rem);
+      font-size: clamp(3.8rem, 10vw, 7.5rem);
       color: var(--fg);
       line-height: 1;
       letter-spacing: -0.03em;
+    }
+
+    /* Flip animation overlay (top half flips down) */
+    .flip-panel {
+      position: absolute;
+      left: 0; right: 0; top: 0;
+      height: 50%;
+      overflow: hidden;
+      background: #111113;
+      border-radius: 12px 12px 0 0;
+      border: 1px solid var(--border);
+      border-bottom: none;
+      transform-origin: bottom center;
+      z-index: 10;
+      pointer-events: none;
+      backface-visibility: hidden;
+    }
+
+    .flip-panel .flip-digit {
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      bottom: 0;
+      transform: translateY(50%);
+    }
+
+    /* top panel lighter */
+    .flip-panel::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.015);
+      pointer-events: none;
+    }
+
+    .flip-card.flipping .flip-panel {
+      animation: flipDown 0.5s ease-in-out forwards;
+    }
+
+    @keyframes flipDown {
+      0% { transform: rotateX(0deg); }
+      100% { transform: rotateX(-90deg); }
     }
 
     .flip-label {
@@ -154,7 +202,7 @@
 
     .colon {
       font-family: var(--mono);
-      font-size: clamp(3rem, 8vw, 5rem);
+      font-size: clamp(2.4rem, 6vw, 4rem);
       font-weight: 700;
       color: var(--muted);
       margin-bottom: 24px;
@@ -175,34 +223,115 @@
       font-weight: 400;
     }
 
-    /* seconds bar — thin, subtle */
-    .seconds-bar-wrap {
-      width: min(340px, 70vw);
-      height: 2px;
-      background: var(--border);
-      border-radius: 2px;
-      margin-top: 14px;
-      overflow: hidden;
+    /* ══════════════════════════════════
+       VIEW: POMODORO
+       ══════════════════════════════════ */
+    .pomo-ring-wrap {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      margin-bottom: 28px;
     }
 
-    .seconds-bar {
+    .pomo-ring-wrap svg {
+      width: 100%;
       height: 100%;
-      width: 0%;
-      background: var(--amber);
-      border-radius: 2px;
-      transition: width 0.3s linear;
+      transform: rotate(-90deg);
     }
+
+    .pomo-ring-bg {
+      fill: none;
+      stroke: var(--border);
+      stroke-width: 4;
+    }
+
+    .pomo-ring-fg {
+      fill: none;
+      stroke: var(--amber);
+      stroke-width: 4;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1s linear;
+    }
+
+    .pomo-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pomo-time {
+      font-family: var(--mono);
+      font-size: 3.6rem;
+      font-weight: 700;
+      color: var(--fg);
+      letter-spacing: -0.02em;
+    }
+
+    .pomo-label-text {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--amber);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .pomo-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .pomo-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      padding: 8px 18px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .pomo-btn:hover { color: var(--fg); border-color: var(--faint); }
+
+    .pomo-btn.primary {
+      background: var(--amber);
+      color: var(--bg);
+      border-color: var(--amber);
+    }
+
+    .pomo-btn.primary:hover { opacity: 0.85; }
+
+    .pomo-presets {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .pomo-preset {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--faint);
+      font-family: var(--mono);
+      font-size: 10px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .pomo-preset:hover, .pomo-preset.active { color: var(--amber); border-color: var(--amber); }
 
     /* ══════════════════════════════════
-       WELCOME / STARTPAGE VIEW
+       VIEW: WELCOME / LINKS
        ══════════════════════════════════ */
-    .welcome-container {
-      display: none;
-      width: min(1000px, 92vw);
-      gap: 40px;
-      align-items: flex-start;
-    }
-
     .welcome-art {
       width: 340px;
       min-height: 480px;
@@ -212,10 +341,7 @@
       border: 1px solid var(--border);
     }
 
-    .welcome-content {
-      flex: 1;
-      padding-top: 10px;
-    }
+    .welcome-content { flex: 1; padding-top: 10px; }
 
     .welcome-title {
       font-family: var(--sans);
@@ -248,10 +374,7 @@
       margin-bottom: 10px;
     }
 
-    .cat-links {
-      list-style: none;
-    }
-
+    .cat-links { list-style: none; }
     .cat-links li { margin: 6px 0; }
 
     .cat-links a {
@@ -264,134 +387,262 @@
       transition: color 0.15s ease;
     }
 
-    .cat-links a:hover {
-      color: var(--fg);
-    }
+    .cat-links a:hover { color: var(--fg); }
 
     /* ══════════════════════════════════
-       DOCK (BOTTOM BAR)
+       DOCK — FLOATING FROSTED GLASS (REF 1 & 2)
        ══════════════════════════════════ */
-    .dock {
+    .dock-area {
       position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
       z-index: 100;
       display: flex;
-      justify-content: center;
-      padding: 10px 0 14px;
-      background: rgba(9, 9, 11, 0.9);
-      border-top: 1px solid var(--border);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-    }
-
-    .dock-inner {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .dock-item {
-      display: flex;
       align-items: center;
       justify-content: center;
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      color: var(--fg);
+    }
+
+    /* ── Main Frosted Glass Pill ── */
+    .dock-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 50px;
+      backdrop-filter: blur(32px) saturate(180%);
+      -webkit-backdrop-filter: blur(32px) saturate(180%);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+
+    /* ── Icon Well (circular bg per icon) ── */
+    .dock-well {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      color: rgba(255, 255, 255, 0.6);
       text-decoration: none;
       cursor: pointer;
-      background: none;
-      border: none;
       outline: none;
-      transition: transform 0.2s ease;
-      transform-origin: bottom center;
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                  background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+      transform-origin: center center;
       will-change: transform;
       position: relative;
     }
 
-    .dock-item img {
-      width: 24px;
-      height: 24px;
+    .dock-well:hover,
+    .dock-well.open {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.22);
+      color: #ffffff;
+      transform: scale(1.12);
+    }
+
+    .dock-well img {
+      width: 20px;
+      height: 20px;
       object-fit: contain;
-      /* Match /work page: grayscale + dim by default */
-      filter: grayscale(1) brightness(0.5);
+      filter: grayscale(1) brightness(0.6) opacity(0.7);
       transition: filter 0.25s ease, transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    .dock-item svg {
-      width: 22px;
-      height: 22px;
-      /* Same treatment: desaturate by default */
-      filter: grayscale(1) brightness(0.5);
-      transition: filter 0.25s ease, transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    .dock-well:hover img,
+    .dock-well:focus-visible img {
+      filter: grayscale(0) brightness(1.1) opacity(1);
+      transform: scale(1.1);
     }
 
-    .dock-item i {
-      font-size: 18px;
-      color: var(--muted);
-      transition: color 0.2s ease;
+    .dock-well svg.dock-svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      transition: stroke 0.25s ease, transform 0.25s ease;
     }
 
-    /* Hover: remove grayscale, show full color, slight scale */
-    .dock-item:hover img,
-    .dock-item:focus-visible img {
-      filter: grayscale(0) brightness(1);
-      transform: scale(1.15);
-    }
-
-    .dock-item:hover svg,
-    .dock-item:focus-visible svg {
-      filter: grayscale(0) brightness(1);
-      transform: scale(1.15);
-    }
-
-    .dock-item:hover i { color: var(--fg); }
-
-    /* tooltip */
+    /* ── Tooltip ── */
     .dock-tip {
       position: absolute;
-      top: -30px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      color: var(--fg);
-      padding: 3px 8px;
-      border-radius: 4px;
+      top: -36px;
+      left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      background: rgba(14, 14, 18, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fafafa;
+      padding: 4px 10px;
+      border-radius: 8px;
       font-family: var(--mono);
       font-size: 10px;
       font-weight: 500;
       white-space: nowrap;
       pointer-events: none;
       opacity: 0;
-      transform: translateY(4px);
       transition: opacity 0.15s ease, transform 0.15s ease;
+      z-index: 50;
     }
 
-    .dock-item:hover .dock-tip {
+    .dock-well:hover .dock-tip,
+    .hub-circle:hover .dock-tip {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateX(-50%) translateY(0);
     }
 
-    /* separator */
-    .dock-sep {
-      width: 1px;
-      height: 24px;
-      background: var(--border);
-      margin: 0 4px;
+    /* ── Dynamic Links Inside Pill ── */
+    #dynamicDock { display: contents; }
+
+    /* ── Standalone Circle Button (outside pill - Search / Fullscreen) ── */
+    .hub-circle {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(32px) saturate(180%);
+      -webkit-backdrop-filter: blur(32px) saturate(180%);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      outline: none;
+      transition: background 0.2s ease, border-color 0.2s ease, transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.2s ease;
     }
 
-    /* add button */
-    .dock-add {
-      border: 1px dashed var(--border);
-      border-radius: 8px;
+    .hub-circle:hover {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.22);
+      color: #ffffff;
+      transform: scale(1.12);
     }
 
-    .dock-add:hover {
-      border-color: var(--faint);
+    .hub-circle svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
     }
 
-    .dock-add i { font-size: 14px; }
+    /* ── Popup Balloon attached to Home Icon (Speech Bubble - Ref 2) ── */
+    .hub-popup {
+      position: absolute;
+      bottom: calc(100% + 16px);
+      left: 50%;
+      transform: translateX(-50%) translateY(8px) scale(0.94);
+      transform-origin: bottom center;
+      width: 260px;
+      background: rgba(22, 22, 28, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 22px;
+      backdrop-filter: blur(36px) saturate(180%);
+      -webkit-backdrop-filter: blur(36px) saturate(180%);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      padding: 8px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 200;
+    }
+
+    .hub-popup.open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+
+    /* speech-bubble caret pointing down to home button */
+    .hub-popup::after {
+      content: '';
+      position: absolute;
+      bottom: -7px;
+      left: 50%;
+      transform: translateX(-50%) rotate(45deg);
+      width: 14px;
+      height: 14px;
+      background: rgba(22, 22, 28, 0.94);
+      border-right: 1px solid rgba(255, 255, 255, 0.12);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .popup-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.75);
+      font-family: var(--sans);
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .popup-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+    }
+
+    .popup-item.active {
+      color: var(--amber);
+      background: rgba(199, 139, 74, 0.12);
+    }
+
+    .pi-svg {
+      flex-shrink: 0;
+      stroke: currentColor;
+      opacity: 0.85;
+    }
+
+    .pi-label {
+      flex: 1;
+    }
+
+    .popup-keys {
+      display: flex;
+      gap: 3px;
+    }
+
+    .popup-keys kbd {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 4px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 5px;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.6);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .popup-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.08);
+      margin: 6px 10px;
+    }
+
+    /* hidden file input */
+    #wallpaperInput { display: none; }
 
     /* ══════════════════════════════════
        MODAL (add link)
@@ -401,7 +652,7 @@
       inset: 0;
       background: rgba(0, 0, 0, 0.7);
       backdrop-filter: blur(4px);
-      z-index: 200;
+      z-index: 300;
       display: none;
       align-items: center;
       justify-content: center;
@@ -413,7 +664,7 @@
     .modal-panel {
       width: 100%;
       max-width: 420px;
-      background: var(--bg);
+      background: #111113;
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 24px;
@@ -426,9 +677,7 @@
       margin-bottom: 16px;
     }
 
-    .form-field {
-      margin-bottom: 12px;
-    }
+    .form-field { margin-bottom: 12px; }
 
     .form-field label {
       display: block;
@@ -458,9 +707,7 @@
       border-bottom-color: var(--amber);
     }
 
-    .form-field select {
-      background: var(--bg);
-    }
+    .form-field select { background: #111113; }
 
     .form-actions {
       display: flex;
@@ -481,17 +728,9 @@
       transition: opacity 0.2s ease;
     }
 
-    .btn-cancel {
-      color: var(--muted);
-    }
-
+    .btn-cancel { color: var(--muted); }
     .btn-cancel:hover { color: var(--fg); }
-
-    .btn-save {
-      color: var(--bg);
-      background: var(--amber);
-    }
-
+    .btn-save { color: var(--bg); background: var(--amber); }
     .btn-save:hover { opacity: 0.8; }
 
     /* ══════════════════════════════════
@@ -499,50 +738,45 @@
        ══════════════════════════════════ */
     @media (max-width: 768px) {
       body { padding: 24px 16px 90px 16px; }
-
-      .flip-card {
-        width: 130px;
-        height: 150px;
-        border-radius: 8px;
-      }
-
-      .flip-digit { font-size: 4rem; }
-      .colon { font-size: 2.4rem; margin-bottom: 16px; }
-
-      .welcome-container {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .welcome-art {
-        width: 80%;
-        min-height: auto;
-        max-height: 360px;
-      }
-
+      .flip-card { width: 90px; height: 110px; }
+      .flip-card-inner { border-radius: 8px; }
+      .flip-panel { border-radius: 8px 8px 0 0; }
+      .flip-digit { font-size: 2.8rem; }
+      .colon { font-size: 1.8rem; margin-bottom: 12px; }
+      .view-welcome.active { flex-direction: column; align-items: center; }
+      .welcome-art { width: 80%; min-height: auto; max-height: 360px; }
       .welcome-content { width: 100%; padding-top: 0; }
       .categories { grid-template-columns: 1fr; gap: 20px; }
-
       .dock-tip { display: none; }
+      .dock-pill { gap: 2px; padding: 6px 8px; }
+      .dock-well { width: 38px; height: 38px; }
+      .dock-well img { width: 16px; height: 16px; }
+      .hub-circle { width: 42px; height: 42px; }
+      .hub-circle img { width: 18px; height: 18px; }
+      .dock-area { gap: 8px; }
+      .pomo-ring-wrap { width: 220px; height: 220px; }
+      .pomo-time { font-size: 2.8rem; }
     }
   </style>
 </head>
 <body>
 
-  <!-- ═══ FLIP CLOCK VIEW ═══ -->
-  <div class="clock-container" id="flipView">
+  <!-- Wallpaper background layer -->
+  <div class="wallpaper-bg" id="wallpaperBg"></div>
+
+  <!-- ═══ VIEW: FLIP CLOCK ═══ -->
+  <div class="view view-clock active" id="viewClock">
     <div class="clock-meta">
       <span>Brasília · GMT-3</span>
-      <div class="meta-controls">
-        <button class="ctrl-btn" id="toggleViewBtn">alternar visual</button>
-        <button class="ctrl-btn" id="fullscreenBtn">tela cheia</button>
-      </div>
     </div>
 
     <div class="flip-clock">
       <div class="flip-unit">
-        <div class="flip-card">
-          <span class="flip-digit" id="hh">--</span>
+        <div class="flip-card" id="flipH">
+          <div class="flip-card-inner">
+            <span class="flip-digit" id="hh">--</span>
+          </div>
+          <div class="flip-panel"><span class="flip-digit" id="hh_old">--</span></div>
         </div>
         <span class="flip-label">horas</span>
       </div>
@@ -550,21 +784,66 @@
       <div class="colon">:</div>
 
       <div class="flip-unit">
-        <div class="flip-card">
-          <span class="flip-digit" id="mm">--</span>
+        <div class="flip-card" id="flipM">
+          <div class="flip-card-inner">
+            <span class="flip-digit" id="mm">--</span>
+          </div>
+          <div class="flip-panel"><span class="flip-digit" id="mm_old">--</span></div>
         </div>
         <span class="flip-label">minutos</span>
+      </div>
+
+      <div class="colon">:</div>
+
+      <div class="flip-unit">
+        <div class="flip-card" id="flipS">
+          <div class="flip-card-inner">
+            <span class="flip-digit" id="ss">--</span>
+          </div>
+          <div class="flip-panel"><span class="flip-digit" id="ss_old">--</span></div>
+        </div>
+        <span class="flip-label">segundos</span>
       </div>
     </div>
 
     <div class="date-text" id="dateText"></div>
-    <div class="seconds-bar-wrap">
-      <div class="seconds-bar" id="secBar"></div>
+  </div>
+
+  <!-- ═══ VIEW: POMODORO ═══ -->
+  <div class="view view-pomo" id="viewPomo">
+    <div class="clock-meta">
+      <span>Pomodoro</span>
+    </div>
+
+    <div class="pomo-ring-wrap">
+      <svg viewBox="0 0 280 280">
+        <circle class="pomo-ring-bg" cx="140" cy="140" r="130"></circle>
+        <circle class="pomo-ring-fg" id="pomoRing" cx="140" cy="140" r="130"
+          stroke-dasharray="816.81"
+          stroke-dashoffset="0">
+        </circle>
+      </svg>
+      <div class="pomo-center">
+        <div class="pomo-time" id="pomoTime">25:00</div>
+        <div class="pomo-label-text" id="pomoLabel">foco</div>
+      </div>
+    </div>
+
+    <div class="pomo-controls">
+      <button class="pomo-btn primary" id="pomoStartBtn">Iniciar</button>
+      <button class="pomo-btn" id="pomoResetBtn">Reset</button>
+    </div>
+
+    <div class="pomo-presets">
+      <button class="pomo-preset active" data-min="25" data-label="foco">25min</button>
+      <button class="pomo-preset" data-min="5" data-label="pausa curta">5min</button>
+      <button class="pomo-preset" data-min="15" data-label="pausa longa">15min</button>
+      <button class="pomo-preset" data-min="50" data-label="deep work">50min</button>
     </div>
   </div>
 
-  <!-- ═══ WELCOME / STARTPAGE VIEW ═══ -->
-  <div class="welcome-container" id="welcomeView">
+  <!-- ═══ VIEW: WELCOME / LINKS ═══ -->
+  <div class="view view-welcome" id="viewWelcome">
     <img class="welcome-art" src="/assets/imagepage.jpeg" alt="art">
 
     <div class="welcome-content">
@@ -580,7 +859,6 @@
             <li><a href="https://youtube.com" target="_blank" rel="noopener">YouTube</a></li>
           </ul>
         </div>
-
         <div>
           <div class="cat-title">~/dev 💻</div>
           <ul class="cat-links">
@@ -589,63 +867,128 @@
             <li><a href="#" target="_blank" rel="noopener">Dots</a></li>
           </ul>
         </div>
-
-        <!-- Dynamic categories rendered from localStorage -->
       </div>
     </div>
   </div>
 
-  <!-- ═══ DOCK ═══ -->
-  <nav class="dock">
-    <div class="dock-inner" id="dockBar">
+  <!-- ═══ DOCK — FLOATING FROSTED GLASS PILL + SEARCH CIRCLE ═══ -->
+  <nav class="dock-area">
 
-      <a class="dock-item" href="https://web.whatsapp.com" target="_blank" rel="noopener">
+    <!-- Main Pill -->
+    <div class="dock-pill" id="dockBar">
+
+      <!-- Icons Left of Hub -->
+      <a class="dock-well" href="https://web.whatsapp.com" target="_blank" rel="noopener">
         <span class="dock-tip">WhatsApp</span>
         <img src="/assets/icons/whatsapp.svg" alt="WhatsApp">
       </a>
 
-      <a class="dock-item" href="https://www.google.com" target="_blank" rel="noopener">
+      <a class="dock-well" href="https://www.google.com" target="_blank" rel="noopener">
         <span class="dock-tip">Google</span>
         <img src="/assets/icons/google.svg" alt="Google">
       </a>
 
-      <a class="dock-item" href="https://www.youtube.com" target="_blank" rel="noopener">
+      <a class="dock-well" href="https://www.youtube.com" target="_blank" rel="noopener">
         <span class="dock-tip">YouTube</span>
         <img src="/assets/icons/youtube.svg" alt="YouTube">
       </a>
 
-      <a class="dock-item" href="https://github.com" target="_blank" rel="noopener">
+      <!-- CENTER: Home Icon (Casinha) — Hub Trigger with Balloon Popup -->
+      <button class="dock-well" id="hubBtn">
+        <span class="dock-tip">Hub</span>
+        <svg class="dock-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+
+        <!-- Speech-bubble Popup attached to Home Icon (Reference Image 2) -->
+        <div class="hub-popup" id="hubPopup">
+          <button class="popup-item active" data-view="clock">
+            <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <span class="pi-label">Relógio</span>
+            <span class="popup-keys"><kbd>1</kbd></span>
+          </button>
+
+          <button class="popup-item" data-view="pomo">
+            <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><path d="M12 2v4"/><path d="M12 18v4"/>
+            </svg>
+            <span class="pi-label">Pomodoro</span>
+            <span class="popup-keys"><kbd>2</kbd></span>
+          </button>
+
+          <button class="popup-item" data-view="welcome">
+            <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span class="pi-label">Modo Links</span>
+            <span class="popup-keys"><kbd>3</kbd></span>
+          </button>
+
+          <div class="popup-divider"></div>
+
+          <button class="popup-item" id="wallpaperBtn">
+            <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+            </svg>
+            <span class="pi-label">Wallpaper</span>
+            <span class="popup-keys"><kbd>W</kbd></span>
+          </button>
+
+          <button class="popup-item" id="popupAddLink">
+            <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            <span class="pi-label">Adicionar link</span>
+            <span class="popup-keys"><kbd>A</kbd></span>
+          </button>
+
+          <button class="popup-item" id="clearWallBtn">
+            <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+            <span class="pi-label">Remover wallpaper</span>
+            <span class="popup-keys"><kbd>R</kbd></span>
+          </button>
+        </div>
+      </button>
+
+      <!-- Icons Right of Hub -->
+      <a class="dock-well" href="https://github.com" target="_blank" rel="noopener">
         <span class="dock-tip">GitHub</span>
         <img src="/assets/icons/github.svg" alt="GitHub">
       </a>
 
-      <a class="dock-item" href="https://richardtjustke.tech" target="_blank" rel="noopener">
-        <span class="dock-tip">richardtjustke.tech</span>
-        <img src="/assets/icons/bilibili.svg" alt="Hub">
-      </a>
-
-      <a class="dock-item" href="https://cloud.oracle.com" target="_blank" rel="noopener">
+      <a class="dock-well" href="https://cloud.oracle.com" target="_blank" rel="noopener">
         <span class="dock-tip">Oracle Cloud</span>
         <img src="/assets/icons/oracle.svg" alt="Oracle">
       </a>
 
-      <a class="dock-item" href="#" target="_blank" rel="noopener">
-        <span class="dock-tip">Cloud</span>
-        <img src="/assets/icons/cloud.svg" alt="Cloud">
+      <a class="dock-well" href="https://richardtjustke.tech" target="_blank" rel="noopener">
+        <span class="dock-tip">richardtjustke.tech</span>
+        <img src="/assets/icons/heart.svg" alt="Site">
       </a>
 
       <!-- Dynamic custom links -->
       <span id="dynamicDock"></span>
 
-      <div class="dock-sep"></div>
-
-      <button class="dock-item dock-add" id="addLinkBtn">
-        <span class="dock-tip">Adicionar link</span>
-        <i style="font-size:14px; color: var(--faint);">+</i>
+      <!-- Fullscreen/Search Icon inside dock pill -->
+      <button class="dock-well" id="fullscreenBtn" title="Tela Cheia">
+        <span class="dock-tip">Tela Cheia</span>
+        <svg class="dock-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
       </button>
 
     </div>
+
   </nav>
+
+  <!-- Hidden file picker for wallpaper -->
+  <input type="file" id="wallpaperInput" accept="image/*">
 
   <!-- ═══ ADD LINK MODAL ═══ -->
   <div class="modal-overlay" id="addModal">
@@ -681,7 +1024,24 @@
     (() => {
       const pad = v => String(v).padStart(2, '0');
 
-      // ── Clock Engine ──
+      /* ══ Clock Engine ══ */
+      // Flip animation helper
+      function flipUnit(cardId, newVal, oldId) {
+        const card = document.getElementById(cardId);
+        const oldEl = document.getElementById(oldId);
+        if (!card) return;
+
+        // set old value on the flip panel, trigger animation
+        oldEl.textContent = card.querySelector('.flip-card-inner .flip-digit').textContent;
+        card.classList.remove('flipping');
+        // force reflow
+        void card.offsetWidth;
+        card.classList.add('flipping');
+
+        // update the actual digit
+        card.querySelector('.flip-card-inner .flip-digit').textContent = newVal;
+      }
+
       function tick() {
         const now = new Date();
         const parts = new Intl.DateTimeFormat('pt-BR', {
@@ -699,83 +1059,176 @@
 
         const hh = document.getElementById('hh');
         const mm = document.getElementById('mm');
-        if (hh.textContent !== h) hh.textContent = h;
-        if (mm.textContent !== m) mm.textContent = m;
+        const ss = document.getElementById('ss');
 
-        // seconds bar
-        const secNum = parseInt(s, 10);
-        const bar = document.getElementById('secBar');
-        if (bar) bar.style.width = `${((secNum + 1) / 60) * 100}%`;
+        if (hh && hh.textContent !== h) flipUnit('flipH', h, 'hh_old');
+        if (mm && mm.textContent !== m) flipUnit('flipM', m, 'mm_old');
+        if (ss && ss.textContent !== s) flipUnit('flipS', s, 'ss_old');
 
-        // date
         const dateStr = new Intl.DateTimeFormat('pt-BR', {
           timeZone: 'America/Sao_Paulo',
           weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
         }).format(now);
-        document.getElementById('dateText').textContent = dateStr;
+        const dt = document.getElementById('dateText');
+        if (dt) dt.textContent = dateStr;
 
-        // welcome time
         const weekday = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(now);
-        const timeStr = `${h}:${m}:${s}`;
         const shortDate = new Intl.DateTimeFormat('pt-BR', {
           timeZone: 'America/Sao_Paulo',
           day: '2-digit', month: '2-digit', year: 'numeric'
         }).format(now);
         const wt = document.getElementById('welcomeTime');
-        if (wt) wt.textContent = `${weekday}, ${timeStr} | ${shortDate}`;
+        if (wt) wt.textContent = `${weekday}, ${h}:${m}:${s} | ${shortDate}`;
       }
 
       tick();
       setInterval(tick, 1000);
 
-      // ── View Toggle ──
-      const flipView = document.getElementById('flipView');
-      const welcomeView = document.getElementById('welcomeView');
-      const toggleBtn = document.getElementById('toggleViewBtn');
+      /* ══ View Switching ══ */
+      const views = document.querySelectorAll('.view');
+      const popupItems = document.querySelectorAll('.popup-item[data-view]');
 
-      function setMode(mode) {
-        if (mode === 'welcome') {
-          flipView.style.display = 'none';
-          welcomeView.style.display = 'flex';
-          toggleBtn.textContent = 'mostrar relógio';
-        } else {
-          flipView.style.display = 'flex';
-          welcomeView.style.display = 'none';
-          toggleBtn.textContent = 'alternar visual';
-        }
-        localStorage.setItem('clockMode', mode);
-        renderDynamicCategories();
+      function switchView(name) {
+        views.forEach(v => v.classList.remove('active'));
+        const target = document.getElementById(
+          name === 'clock' ? 'viewClock' :
+          name === 'pomo' ? 'viewPomo' : 'viewWelcome'
+        );
+        if (target) target.classList.add('active');
+
+        popupItems.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.view === name);
+        });
+
+        localStorage.setItem('clockMode', name);
+        if (name === 'welcome') renderDynamicCategories();
       }
 
-      toggleBtn.addEventListener('click', () => {
-        const cur = localStorage.getItem('clockMode') === 'welcome' ? 'flip' : 'welcome';
-        setMode(cur);
+      popupItems.forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          switchView(btn.dataset.view);
+          closePopup();
+        });
       });
 
-      setMode(localStorage.getItem('clockMode') || 'flip');
+      switchView(localStorage.getItem('clockMode') || 'clock');
 
-      // ── Fullscreen ──
-      const fsBtn = document.getElementById('fullscreenBtn');
-      function toggleFs() {
-        if (!document.fullscreenElement) {
-          document.documentElement.requestFullscreen().catch(() => {});
-        } else {
-          document.exitFullscreen();
-        }
+      /* ══ Hub Popup ══ */
+      const hubBtn = document.getElementById('hubBtn');
+      const hubPopup = document.getElementById('hubPopup');
+
+      function openPopup() {
+        hubPopup.classList.add('open');
+        hubBtn.classList.add('open');
       }
-      fsBtn.addEventListener('click', toggleFs);
+
+      function closePopup() {
+        hubPopup.classList.remove('open');
+        hubBtn.classList.remove('open');
+      }
+
+      hubBtn.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (hubPopup.classList.contains('open')) {
+          closePopup();
+        } else {
+          openPopup();
+        }
+      });
+
+      // prevent popup clicks from closing it
+      hubPopup.addEventListener('click', e => e.stopPropagation());
+
+      document.addEventListener('click', () => closePopup());
       document.addEventListener('keydown', e => {
-        if ((e.key === 'f' || e.key === 'F') && document.activeElement.tagName !== 'INPUT') {
-          e.preventDefault();
-          toggleFs();
-        }
+        if (e.key === 'Escape') closePopup();
       });
 
-      // ── Dock magnify (subtle, matching /work scale behavior) ──
+      /* ══ Pomodoro Timer ══ */
+      const CIRC = 2 * Math.PI * 130; // ~816.81
+      let pomoTotal = 25 * 60;
+      let pomoLeft = pomoTotal;
+      let pomoInterval = null;
+      let pomoRunning = false;
+
+      const pomoTime = document.getElementById('pomoTime');
+      const pomoLabel = document.getElementById('pomoLabel');
+      const pomoRing = document.getElementById('pomoRing');
+      const startBtn = document.getElementById('pomoStartBtn');
+      const resetBtn = document.getElementById('pomoResetBtn');
+      const presets = document.querySelectorAll('.pomo-preset');
+
+      function updatePomoDisplay() {
+        const min = Math.floor(pomoLeft / 60);
+        const sec = pomoLeft % 60;
+        pomoTime.textContent = `${pad(min)}:${pad(sec)}`;
+
+        const progress = 1 - (pomoLeft / pomoTotal);
+        pomoRing.setAttribute('stroke-dashoffset', CIRC * (1 - progress));
+      }
+
+      function startPomo() {
+        if (pomoRunning) {
+          // pause
+          clearInterval(pomoInterval);
+          pomoRunning = false;
+          startBtn.textContent = 'Continuar';
+          return;
+        }
+
+        pomoRunning = true;
+        startBtn.textContent = 'Pausar';
+        pomoInterval = setInterval(() => {
+          pomoLeft--;
+          if (pomoLeft <= 0) {
+            pomoLeft = 0;
+            clearInterval(pomoInterval);
+            pomoRunning = false;
+            startBtn.textContent = 'Iniciar';
+            // simple notification
+            if (Notification.permission === 'granted') {
+              new Notification('Pomodoro finalizado!', { body: 'Hora de descansar.' });
+            }
+          }
+          updatePomoDisplay();
+        }, 1000);
+      }
+
+      function resetPomo() {
+        clearInterval(pomoInterval);
+        pomoRunning = false;
+        pomoLeft = pomoTotal;
+        startBtn.textContent = 'Iniciar';
+        updatePomoDisplay();
+      }
+
+      startBtn.addEventListener('click', startPomo);
+      resetBtn.addEventListener('click', resetPomo);
+
+      presets.forEach(btn => {
+        btn.addEventListener('click', () => {
+          presets.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          pomoTotal = parseInt(btn.dataset.min) * 60;
+          pomoLabel.textContent = btn.dataset.label;
+          resetPomo();
+        });
+      });
+
+      // request notification permission
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+
+      updatePomoDisplay();
+
+      /* ══ Dock magnify ══ */
       const dockBar = document.getElementById('dockBar');
 
       dockBar.addEventListener('mousemove', e => {
-        const items = dockBar.querySelectorAll('.dock-item');
+        const items = dockBar.querySelectorAll('.dock-well');
         const mx = e.clientX;
         const maxScale = 1.35;
         const radius = 80;
@@ -795,10 +1248,10 @@
       });
 
       dockBar.addEventListener('mouseleave', () => {
-        dockBar.querySelectorAll('.dock-item').forEach(i => i.style.transform = '');
+        dockBar.querySelectorAll('.dock-well').forEach(i => i.style.transform = '');
       });
 
-      // ── Custom links (localStorage) ──
+      /* ══ Custom Links (localStorage) ══ */
       function getLinks() {
         const s = localStorage.getItem('dock_links');
         return s ? JSON.parse(s) : [];
@@ -811,13 +1264,16 @@
       function renderDockLinks() {
         const dyn = document.getElementById('dynamicDock');
         dyn.innerHTML = '';
-        getLinks().forEach(l => {
+        const links = getLinks();
+        if (!links.length) return;
+        links.forEach(l => {
           const a = document.createElement('a');
-          a.className = 'dock-item';
+          a.className = 'dock-well';
           a.href = l.url;
           a.target = '_blank';
           a.rel = 'noopener';
-          a.innerHTML = `<span class="dock-tip">${l.name}</span><i style="font-size:18px; color: var(--muted);">●</i>`;
+          a.innerHTML = `<span class="dock-tip">${l.name}</span>` +
+            `<img src="/assets/icons/heart.svg" alt="${l.name}">`;
           dyn.appendChild(a);
         });
       }
@@ -825,9 +1281,7 @@
       function renderDynamicCategories() {
         const links = getLinks();
         if (!links.length) return;
-
         const area = document.getElementById('categoriesArea');
-        // remove old dynamic ones
         area.querySelectorAll('.dynamic-cat').forEach(el => el.remove());
 
         const byCategory = {};
@@ -847,9 +1301,8 @@
         Object.keys(byCategory).forEach(key => {
           const div = document.createElement('div');
           div.className = 'dynamic-cat';
-          const title = catLabels[key] || `~/${key}`;
           div.innerHTML = `
-            <div class="cat-title">${title}</div>
+            <div class="cat-title">${catLabels[key] || '~/' + key}</div>
             <ul class="cat-links">
               ${byCategory[key].map(l => `<li><a href="${l.url}" target="_blank" rel="noopener">${l.name}</a></li>`).join('')}
             </ul>
@@ -859,11 +1312,20 @@
       }
 
       renderDockLinks();
-      renderDynamicCategories();
 
-      // ── Add Link Modal ──
+      /* ══ Add Link Modal ══ */
       const addModal = document.getElementById('addModal');
-      document.getElementById('addLinkBtn').addEventListener('click', () => addModal.classList.add('open'));
+
+      function openAddModal() {
+        closePopup();
+        addModal.classList.add('open');
+      }
+
+      document.getElementById('popupAddLink').addEventListener('click', e => {
+        e.stopPropagation();
+        openAddModal();
+      });
+
       document.getElementById('cancelAdd').addEventListener('click', () => addModal.classList.remove('open'));
       addModal.addEventListener('click', e => { if (e.target === addModal) addModal.classList.remove('open'); });
 
@@ -883,8 +1345,85 @@
         document.getElementById('addForm').reset();
       });
 
+      /* ══ Wallpaper Manager ══ */
+      const wallpaperInput = document.getElementById('wallpaperInput');
+
+      document.getElementById('wallpaperBtn').addEventListener('click', e => {
+        e.stopPropagation();
+        closePopup();
+        wallpaperInput.click();
+      });
+
+      wallpaperInput.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const dataUrl = ev.target.result;
+          const bg = document.getElementById('wallpaperBg');
+          bg.style.backgroundImage = `url(${dataUrl})`;
+          bg.classList.add('active');
+          localStorage.setItem('clock_wallpaper', dataUrl);
+        };
+        reader.readAsDataURL(file);
+      });
+
+      document.getElementById('clearWallBtn').addEventListener('click', e => {
+        e.stopPropagation();
+        const bg = document.getElementById('wallpaperBg');
+        bg.style.backgroundImage = '';
+        bg.classList.remove('active');
+        localStorage.removeItem('clock_wallpaper');
+        closePopup();
+      });
+
+      // Restore wallpaper on load
+      const savedWall = localStorage.getItem('clock_wallpaper');
+      if (savedWall) {
+        const bg = document.getElementById('wallpaperBg');
+        bg.style.backgroundImage = `url(${savedWall})`;
+        bg.classList.add('active');
+      }
+
+      const fsBtn = document.getElementById('fullscreenBtn');
+      if (fsBtn) {
+        fsBtn.addEventListener('click', () => {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+          } else {
+            document.exitFullscreen();
+          }
+        });
+      }
+
+      /* ══ Keyboard ══ */
       document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') addModal.classList.remove('open');
+        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT') return;
+
+        if (e.key === 'Escape') {
+          addModal.classList.remove('open');
+          closePopup();
+        }
+        if (e.key === '1') { switchView('clock'); closePopup(); }
+        if (e.key === '2') { switchView('pomo'); closePopup(); }
+        if (e.key === '3') { switchView('welcome'); closePopup(); }
+        if (e.key === 'w' || e.key === 'W') { wallpaperInput.click(); closePopup(); }
+        if (e.key === 'a' || e.key === 'A') { openAddModal(); closePopup(); }
+        if (e.key === 'r' || e.key === 'R') {
+          const bg = document.getElementById('wallpaperBg');
+          bg.style.backgroundImage = '';
+          bg.classList.remove('active');
+          localStorage.removeItem('clock_wallpaper');
+          closePopup();
+        }
+        if (e.key === 'f' || e.key === 'F') {
+          e.preventDefault();
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+          } else {
+            document.exitFullscreen();
+          }
+        }
       });
 
     })();
