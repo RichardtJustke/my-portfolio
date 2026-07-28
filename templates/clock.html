@@ -5,446 +5,889 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>relógio — Brasília</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
     :root {
-      --bg-1: #07090f;
-      --bg-2: #0b0b0b;
-      --card-bg: #0f0f10;
-      --card-inner: #111214;
-      --digit: #d9d9db;
-      --muted: #7f7f85;
-      --shadow: rgba(0,0,0,0.6);
-      --accent-amber: #c78b4a;
+      --bg: #09090b;
+      --fg: #fafafa;
+      --muted: #71717a;
+      --faint: #27272a;
+      --border: #18181b;
+      --amber: #c78b4a;
+      --mono: 'IBM Plex Mono', monospace;
+      --sans: 'Inter', -apple-system, sans-serif;
     }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       min-height: 100vh;
-      background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
-      color: var(--digit);
-      font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 28px;
-    }
-
-    .clock-shell {
-      display: block;
-      padding: 28px 32px 18px 32px;
-      border-radius: 18px;
-      background: radial-gradient(800px 250px at 10% 10%, rgba(255,255,255,0.02), transparent), rgba(0,0,0,0.45);
-      box-shadow: 0 24px 60px rgba(2,6,23,0.7);
-      width: min(1100px, 96vw);
-      margin: 0 auto;
-    }
-
-    .clock-meta {
-      color: var(--muted);
-      font-size: 0.78rem;
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 18px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    /* Flip clock layout */
-    .flip-clock {
-      display: flex;
-      gap: 28px;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* larger cards so clock is prominent */
-    .flip-card {
-      width: clamp(220px, 30vw, 420px);
-      height: clamp(220px, 30vw, 420px);
-      border-radius: 18px;
-      background: linear-gradient(180deg, var(--card-bg), var(--card-inner));
-      box-shadow: 0 18px 60px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.02);
-      position: relative;
-      overflow: hidden;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
       display: flex;
       flex-direction: column;
+      align-items: center;
       justify-content: center;
+      padding: 40px 24px 100px 24px;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ══════════════════════════════════
+       FLIP CLOCK VIEW
+       ══════════════════════════════════ */
+    .clock-container {
+      width: min(1000px, 92vw);
+      display: flex;
+      flex-direction: column;
       align-items: center;
     }
 
-    /* subtle horizontal fold */
+    /* top meta row */
+    .clock-meta {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      color: var(--faint);
+      text-transform: uppercase;
+      margin-bottom: 32px;
+    }
+
+    .meta-controls {
+      display: flex;
+      gap: 12px;
+    }
+
+    .ctrl-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .ctrl-btn:hover {
+      color: var(--fg);
+      border-color: var(--faint);
+    }
+
+    /* flip clock cards */
+    .flip-clock {
+      display: flex;
+      align-items: center;
+      gap: clamp(16px, 3vw, 32px);
+      justify-content: center;
+    }
+
+    .flip-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .flip-card {
+      width: clamp(160px, 24vw, 280px);
+      height: clamp(180px, 26vw, 300px);
+      background: #111113;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    /* fold line across the middle */
     .flip-card::before {
       content: '';
       position: absolute;
-      left: 0; right: 0; top: 50%; height: 2px;
-      transform: translateY(-1px);
-      background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(0,0,0,0.25));
-      mix-blend-mode: overlay;
-      pointer-events: none;
+      left: 0; right: 0; top: 50%;
+      height: 1px;
+      background: var(--bg);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.03);
+      z-index: 5;
     }
 
-    /* top highlight to mimic the physical panel */
+    /* top half subtle brightness */
     .flip-card::after {
       content: '';
       position: absolute;
-      left: 0; right: 0; top: 0; height: 48%;
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+      top: 0; left: 0; right: 0;
+      height: 49%;
+      background: rgba(255,255,255,0.015);
       pointer-events: none;
     }
 
-    .digit {
+    .flip-digit {
+      font-family: var(--mono);
       font-weight: 700;
-      font-size: clamp(4.6rem, 14vw, 10.6rem);
-      color: var(--digit);
-      line-height: 0.9;
-      letter-spacing: -0.02em;
-      transform: translateY(-6px);
+      font-size: clamp(5rem, 14vw, 10rem);
+      color: var(--fg);
+      line-height: 1;
+      letter-spacing: -0.03em;
     }
 
+    .flip-label {
+      margin-top: 12px;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      color: var(--faint);
+      text-transform: uppercase;
+    }
 
-    /* divider between hours and minutes */
     .colon {
-      font-size: clamp(3rem, 8vw, 5.2rem);
+      font-family: var(--mono);
+      font-size: clamp(3rem, 8vw, 5rem);
+      font-weight: 700;
       color: var(--muted);
-      padding-top: clamp(14px, 3vw, 22px);
-      padding-bottom: clamp(14px, 3vw, 22px);
+      margin-bottom: 24px;
+      animation: blink 1s ease-in-out infinite;
     }
 
-    .date {
-      margin-top: 18px;
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+
+    .date-text {
+      margin-top: 20px;
+      font-family: var(--mono);
+      font-size: 13px;
       color: var(--muted);
-      text-align: center;
-      font-size: 0.98rem;
       text-transform: capitalize;
+      font-weight: 400;
     }
 
-    /* Footer */
-    .clock-footer {
-      display: flex;
-      justify-content: center;
-      padding: 12px 0 6px 0;
-      margin-top: 8px;
+    /* seconds bar — thin, subtle */
+    .seconds-bar-wrap {
+      width: min(340px, 70vw);
+      height: 2px;
+      background: var(--border);
+      border-radius: 2px;
+      margin-top: 14px;
+      overflow: hidden;
     }
 
-    .toggle-btn {
-      background: transparent;
-      color: var(--muted);
-      border: 1px solid rgba(255,255,255,0.06);
-      padding: 10px 14px;
-      border-radius: 8px;
-      cursor: pointer;
+    .seconds-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--amber);
+      border-radius: 2px;
+      transition: width 0.3s linear;
+    }
+
+    /* ══════════════════════════════════
+       WELCOME / STARTPAGE VIEW
+       ══════════════════════════════════ */
+    .welcome-container {
+      display: none;
+      width: min(1000px, 92vw);
+      gap: 40px;
+      align-items: flex-start;
+    }
+
+    .welcome-art {
+      width: 340px;
+      min-height: 480px;
+      object-fit: cover;
+      border-radius: 6px;
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+    }
+
+    .welcome-content {
+      flex: 1;
+      padding-top: 10px;
+    }
+
+    .welcome-title {
+      font-family: var(--sans);
+      font-size: 2rem;
       font-weight: 600;
-      letter-spacing: 0.06em;
-      transition: all 160ms ease;
+      color: var(--fg);
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
     }
 
-    .toggle-btn:hover { transform: translateY(-2px); color: var(--digit); border-color: rgba(255,255,255,0.12); }
-
-    /* Welcome view (alternate) */
-    .welcome-view { display: none; color: var(--muted); }
-    .welcome-grid { display: flex; gap: 28px; align-items: flex-start; justify-content: space-between; }
-    .welcome-art { width: 440px; height: 640px; object-fit: cover; border-radius: 8px; box-shadow: inset 0 2px 8px rgba(255,255,255,0.02), 0 18px 60px rgba(0,0,0,0.6); }
-    .welcome-content { flex: 1 1 480px; padding-left: 8px; }
-    .welcome-content h1 { color: var(--digit); font-weight: 700; font-size: 2.2rem; margin-bottom: 10px; letter-spacing: 0.04em; }
-    .welcome-time { font-family: 'Courier New', monospace; color: var(--accent-amber); margin-bottom: 18px; font-size: 1rem; }
-    .welcome-columns { display: flex; gap: 48px; color: var(--muted); font-size: 1.05rem; }
-    .welcome-columns ul { list-style: none; margin-top: 6px; padding: 0; }
-    .welcome-columns li { margin: 10px 0; }
-    .welcome-columns a { color: var(--muted); text-decoration: none; font-weight: 600; padding: 6px 0; display: inline-block; }
-    .welcome-columns a:hover { color: var(--digit); }
-
-    @media (max-width: 1024px) {
-      .welcome-grid { flex-direction: column; align-items: center; }
-      .welcome-art { width: 80%; height: auto; max-height: 420px; }
-      .welcome-content { width: 100%; padding-left: 0; }
-      .flip-card { width: 180px; height: 180px; }
-      .digit { font-size: 3.6rem; }
+    .welcome-time-str {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--amber);
+      margin-bottom: 28px;
+      font-weight: 400;
     }
 
-    /* Dock (bottom hub) styles */
+    .categories {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px 40px;
+    }
+
+    .cat-title {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--amber);
+      margin-bottom: 10px;
+    }
+
+    .cat-links {
+      list-style: none;
+    }
+
+    .cat-links li { margin: 6px 0; }
+
+    .cat-links a {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+      display: inline-block;
+      padding: 2px 0;
+      transition: color 0.15s ease;
+    }
+
+    .cat-links a:hover {
+      color: var(--fg);
+    }
+
+    /* ══════════════════════════════════
+       DOCK (BOTTOM BAR)
+       ══════════════════════════════════ */
     .dock {
       position: fixed;
-      left: 50%;
-      bottom: 28px;
-      transform: translateX(-50%);
-      z-index: 1200;
-      pointer-events: auto;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      padding: 10px 0 14px;
+      background: rgba(9, 9, 11, 0.9);
+      border-top: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
 
     .dock-inner {
       display: flex;
-      gap: 14px;
-      align-items: flex-end;
-      padding: 10px 18px;
-      border-radius: 14px;
-      background: rgba(255,255,255,0.03);
-      box-shadow: 0 12px 40px rgba(2,6,23,0.6);
-      backdrop-filter: blur(8px) saturate(140%);
-      -webkit-backdrop-filter: blur(8px) saturate(140%);
-      border: 1px solid rgba(255,255,255,0.04);
+      align-items: center;
+      gap: 8px;
     }
 
     .dock-item {
-      display: inline-flex;
-      width: 64px;
-      height: 64px;
+      display: flex;
       align-items: center;
       justify-content: center;
+      width: 40px;
+      height: 40px;
       border-radius: 8px;
-      color: #ffffff;
+      color: var(--fg);
       text-decoration: none;
-      transition: transform 180ms ease, color 180ms ease, filter 220ms ease;
+      cursor: pointer;
+      background: none;
+      border: none;
+      outline: none;
+      transition: transform 0.2s ease;
+      transform-origin: bottom center;
       will-change: transform;
-      /* mimic work page icons: monochrome + subtle brightness */
-      background: transparent;
+      position: relative;
     }
 
-    /* FontAwesome sizing inside dock items */
-    .dock-item img { width: 36px; height: 36px; object-fit: contain; filter: grayscale(1) brightness(0.6); transition: filter 220ms ease, transform 220ms ease; }
-    .dock-item.dock-center img { width: 44px; height: 44px; }
-    .dock-item svg { width: 36px; height: 36px; fill: currentColor; filter: grayscale(1) brightness(0.6); transition: filter 220ms ease, transform 220ms ease; }
+    .dock-item img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+      /* Match /work page: grayscale + dim by default */
+      filter: grayscale(1) brightness(0.5);
+      transition: filter 0.25s ease, transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
 
-    /* Hover / focus: remove grayscale and slightly scale like work icons */
+    .dock-item svg {
+      width: 22px;
+      height: 22px;
+      /* Same treatment: desaturate by default */
+      filter: grayscale(1) brightness(0.5);
+      transition: filter 0.25s ease, transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .dock-item i {
+      font-size: 18px;
+      color: var(--muted);
+      transition: color 0.2s ease;
+    }
+
+    /* Hover: remove grayscale, show full color, slight scale */
     .dock-item:hover img,
-    .dock-item:focus img,
-    .dock-item:hover svg,
-    .dock-item:focus svg {
-      color: var(--accent-amber);
+    .dock-item:focus-visible img {
       filter: grayscale(0) brightness(1);
       transform: scale(1.15);
-      outline: none;
     }
 
-    @media (max-width: 520px) {
-      .dock-inner { padding: 8px 12px; gap: 8px; }
-      .dock-item { width: 46px; height: 46px; border-radius: 10px; }
-      .dock-item svg { width: 28px; height: 28px; }
+    .dock-item:hover svg,
+    .dock-item:focus-visible svg {
+      filter: grayscale(0) brightness(1);
+      transform: scale(1.15);
+    }
+
+    .dock-item:hover i { color: var(--fg); }
+
+    /* tooltip */
+    .dock-tip {
+      position: absolute;
+      top: -30px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--fg);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 500;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+
+    .dock-item:hover .dock-tip {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* separator */
+    .dock-sep {
+      width: 1px;
+      height: 24px;
+      background: var(--border);
+      margin: 0 4px;
+    }
+
+    /* add button */
+    .dock-add {
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+    }
+
+    .dock-add:hover {
+      border-color: var(--faint);
+    }
+
+    .dock-add i { font-size: 14px; }
+
+    /* ══════════════════════════════════
+       MODAL (add link)
+       ══════════════════════════════════ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal-panel {
+      width: 100%;
+      max-width: 420px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .modal-panel h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--fg);
+      margin-bottom: 16px;
+    }
+
+    .form-field {
+      margin-bottom: 12px;
+    }
+
+    .form-field label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--faint);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .form-field input, .form-field select {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      color: var(--fg);
+      font-family: var(--sans);
+      font-size: 13px;
+      padding: 8px 0;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .form-field input:focus, .form-field select:focus {
+      border-bottom-color: var(--amber);
+    }
+
+    .form-field select {
+      background: var(--bg);
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn-cancel, .btn-save {
+      background: none;
+      border: none;
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 6px 14px;
+      border-radius: 4px;
+      transition: opacity 0.2s ease;
+    }
+
+    .btn-cancel {
+      color: var(--muted);
+    }
+
+    .btn-cancel:hover { color: var(--fg); }
+
+    .btn-save {
+      color: var(--bg);
+      background: var(--amber);
+    }
+
+    .btn-save:hover { opacity: 0.8; }
+
+    /* ══════════════════════════════════
+       RESPONSIVE
+       ══════════════════════════════════ */
+    @media (max-width: 768px) {
+      body { padding: 24px 16px 90px 16px; }
+
+      .flip-card {
+        width: 130px;
+        height: 150px;
+        border-radius: 8px;
+      }
+
+      .flip-digit { font-size: 4rem; }
+      .colon { font-size: 2.4rem; margin-bottom: 16px; }
+
+      .welcome-container {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .welcome-art {
+        width: 80%;
+        min-height: auto;
+        max-height: 360px;
+      }
+
+      .welcome-content { width: 100%; padding-top: 0; }
+      .categories { grid-template-columns: 1fr; gap: 20px; }
+
+      .dock-tip { display: none; }
     }
   </style>
 </head>
 <body>
-  <section class="clock-shell">
+
+  <!-- ═══ FLIP CLOCK VIEW ═══ -->
+  <div class="clock-container" id="flipView">
     <div class="clock-meta">
-      <span>Brasília</span>
-      <span>GMT-3</span>
+      <span>Brasília · GMT-3</span>
+      <div class="meta-controls">
+        <button class="ctrl-btn" id="toggleViewBtn">alternar visual</button>
+        <button class="ctrl-btn" id="fullscreenBtn">tela cheia</button>
+      </div>
     </div>
 
-    <div class="views">
-      <div class="flip-clock" id="clock">
+    <div class="flip-clock">
+      <div class="flip-unit">
         <div class="flip-card">
-          <div class="digit" id="hours">--</div>
+          <span class="flip-digit" id="hh">--</span>
         </div>
+        <span class="flip-label">horas</span>
+      </div>
 
-        <div class="colon">:</div>
+      <div class="colon">:</div>
 
+      <div class="flip-unit">
         <div class="flip-card">
-          <div class="digit" id="minutes">--</div>
+          <span class="flip-digit" id="mm">--</span>
         </div>
+        <span class="flip-label">minutos</span>
       </div>
+    </div>
 
-      <div class="welcome-view" id="welcome">
-        <div class="welcome-grid">
-          <!-- Use attached image 1 as the art. If this file path does not work when served by your app,
-               replace the src with a path from your static assets folder. -->
-          <img class="welcome-art" id="welcome-art" src="/assets/imagepage.jpeg" alt="art">
+    <div class="date-text" id="dateText"></div>
+    <div class="seconds-bar-wrap">
+      <div class="seconds-bar" id="secBar"></div>
+    </div>
+  </div>
 
-          <div class="welcome-content">
-            <h1>Welcome back!</h1>
-            <div class="welcome-time" id="welcome-time">--</div>
-            <div class="welcome-columns">
-              <div class="col">
-                <div>~/general ✏️</div>
-                <ul>
-                  <li><a href="#" target="_blank" rel="noopener">Email</a></li>
-                  <li><a href="#" target="_blank" rel="noopener">Instagram</a></li>
-                  <li><a href="#" target="_blank" rel="noopener">YouTube</a></li>
-                </ul>
-              </div>
+  <!-- ═══ WELCOME / STARTPAGE VIEW ═══ -->
+  <div class="welcome-container" id="welcomeView">
+    <img class="welcome-art" src="/assets/imagepage.jpeg" alt="art">
 
-              <div class="col">
-                <div>~/dev 💻</div>
-                <ul>
-                  <li><a href="#" target="_blank" rel="noopener">CLI</a></li>
-                  <li><a href="#" target="_blank" rel="noopener">GitHub</a></li>
-                  <li><a href="#" target="_blank" rel="noopener">Dots</a></li>
-                </ul>
-              </div>
-            </div>
-          </div>
+    <div class="welcome-content">
+      <h1 class="welcome-title">Welcome back!</h1>
+      <div class="welcome-time-str" id="welcomeTime">--</div>
+
+      <div class="categories" id="categoriesArea">
+        <div>
+          <div class="cat-title">~/general ✏️</div>
+          <ul class="cat-links">
+            <li><a href="mailto:rj.justke@gmail.com">Email</a></li>
+            <li><a href="https://instagram.com/heyy.justke" target="_blank" rel="noopener">Instagram</a></li>
+            <li><a href="https://youtube.com" target="_blank" rel="noopener">YouTube</a></li>
+          </ul>
         </div>
+
+        <div>
+          <div class="cat-title">~/dev 💻</div>
+          <ul class="cat-links">
+            <li><a href="#" target="_blank" rel="noopener">CLI</a></li>
+            <li><a href="https://github.com/RichardtJustke" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="#" target="_blank" rel="noopener">Dots</a></li>
+          </ul>
+        </div>
+
+        <!-- Dynamic categories rendered from localStorage -->
       </div>
     </div>
+  </div>
 
-    <div class="date" id="date"></div>
+  <!-- ═══ DOCK ═══ -->
+  <nav class="dock">
+    <div class="dock-inner" id="dockBar">
 
-    <div class="clock-footer">
-      <button class="toggle-btn" id="toggleStyleBtn">Alternar visual</button>
+      <a class="dock-item" href="https://web.whatsapp.com" target="_blank" rel="noopener">
+        <span class="dock-tip">WhatsApp</span>
+        <img src="/assets/icons/whatsapp.svg" alt="WhatsApp">
+      </a>
+
+      <a class="dock-item" href="https://www.google.com" target="_blank" rel="noopener">
+        <span class="dock-tip">Google</span>
+        <img src="/assets/icons/google.svg" alt="Google">
+      </a>
+
+      <a class="dock-item" href="https://www.youtube.com" target="_blank" rel="noopener">
+        <span class="dock-tip">YouTube</span>
+        <img src="/assets/icons/youtube.svg" alt="YouTube">
+      </a>
+
+      <a class="dock-item" href="https://github.com" target="_blank" rel="noopener">
+        <span class="dock-tip">GitHub</span>
+        <img src="/assets/icons/github.svg" alt="GitHub">
+      </a>
+
+      <a class="dock-item" href="https://richardtjustke.tech" target="_blank" rel="noopener">
+        <span class="dock-tip">richardtjustke.tech</span>
+        <img src="/assets/icons/bilibili.svg" alt="Hub">
+      </a>
+
+      <a class="dock-item" href="https://cloud.oracle.com" target="_blank" rel="noopener">
+        <span class="dock-tip">Oracle Cloud</span>
+        <img src="/assets/icons/oracle.svg" alt="Oracle">
+      </a>
+
+      <a class="dock-item" href="#" target="_blank" rel="noopener">
+        <span class="dock-tip">Cloud</span>
+        <img src="/assets/icons/cloud.svg" alt="Cloud">
+      </a>
+
+      <!-- Dynamic custom links -->
+      <span id="dynamicDock"></span>
+
+      <div class="dock-sep"></div>
+
+      <button class="dock-item dock-add" id="addLinkBtn">
+        <span class="dock-tip">Adicionar link</span>
+        <i style="font-size:14px; color: var(--faint);">+</i>
+      </button>
+
     </div>
-  </section>
+  </nav>
 
-    
-    <!-- Dock (hub) -->
-    <div id="dock" class="dock">
-      <div class="dock-inner" role="navigation" aria-label="Dock">
-        <!-- WhatsApp -->
-        <a class="dock-item" href="#" title="WhatsApp" aria-label="WhatsApp">
-          <img src="/assets/icons/whatsapp.svg" alt="WhatsApp" />
-        </a>
-
-        <!-- Google -->
-        <a class="dock-item" href="#" title="Google" aria-label="Google">
-          <img src="/assets/icons/google.svg" alt="Google" />
-        </a>
-
-        <!-- YouTube -->
-        <a class="dock-item" href="#" title="YouTube" aria-label="YouTube">
-          <img src="/assets/icons/youtube.svg" alt="YouTube" />
-        </a>
-
-        <!-- Lovable (heart) -->
-        <a class="dock-item" href="#" title="Lovable" aria-label="Lovable">
-          <img src="/assets/icons/heart.svg" alt="Lovable" />
-        </a>
-
-        <!-- GitHub -->
-        <a class="dock-item" href="#" title="GitHub" aria-label="GitHub">
-          <img src="/assets/icons/github.svg" alt="GitHub" />
-        </a>
-
-        <!-- Center hub: Bilibili icon -->
-        <a class="dock-item dock-center" href="https://richardtjustke.tech" title="richardtjustke.tech" target="_blank" rel="noopener" aria-label="richardtjustke.tech">
-          <img src="/assets/icons/bilibili.svg" alt="Hub" />
-        </a>
-
-        <!-- Oracle Cloud -->
-        <a class="dock-item" href="#" title="Oracle Cloud" aria-label="Oracle Cloud">
-          <img src="/assets/icons/oracle.svg" alt="Oracle" />
-        </a>
-
-        <!-- Cloud (generic) -->
-        <a class="dock-item" href="#" title="Cloud" aria-label="Cloud">
-          <img src="/assets/icons/cloud.svg" alt="Cloud" />
-        </a>
-      </div>
+  <!-- ═══ ADD LINK MODAL ═══ -->
+  <div class="modal-overlay" id="addModal">
+    <div class="modal-panel">
+      <h3>Adicionar atalho à dock</h3>
+      <form id="addForm">
+        <div class="form-field">
+          <label>Nome</label>
+          <input type="text" id="fName" placeholder="Ex: Spotify" required>
+        </div>
+        <div class="form-field">
+          <label>URL</label>
+          <input type="url" id="fUrl" placeholder="https://..." required>
+        </div>
+        <div class="form-field">
+          <label>Categoria</label>
+          <select id="fCat">
+            <option value="general">Geral</option>
+            <option value="dev">Dev</option>
+            <option value="tools">Ferramentas</option>
+            <option value="social">Social</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" id="cancelAdd">Cancelar</button>
+          <button type="submit" class="btn-save">Salvar</button>
+        </div>
+      </form>
     </div>
+  </div>
 
   <script>
-    function pad(v) { return String(v).padStart(2, '0'); }
+    (() => {
+      const pad = v => String(v).padStart(2, '0');
 
-    // mode: 'flip' or 'welcome'
-    function setMode(mode) {
-      const welcome = document.getElementById('welcome');
-      const clock = document.getElementById('clock');
-      const btn = document.getElementById('toggleStyleBtn');
-      if (mode === 'welcome') {
-        welcome.style.display = 'block';
-        clock.style.display = 'none';
-        btn.textContent = 'Mostrar relógio';
-      } else {
-        welcome.style.display = 'none';
-        clock.style.display = 'flex';
-        btn.textContent = 'Alternar visual';
+      // ── Clock Engine ──
+      function tick() {
+        const now = new Date();
+        const parts = new Intl.DateTimeFormat('pt-BR', {
+          timeZone: 'America/Sao_Paulo',
+          hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+        }).formatToParts(now);
+
+        let h = '00', m = '00', s = '00';
+        for (const p of parts) {
+          if (p.type === 'hour') h = p.value;
+          if (p.type === 'minute') m = p.value;
+          if (p.type === 'second') s = p.value;
+        }
+        h = pad(h); m = pad(m); s = pad(s);
+
+        const hh = document.getElementById('hh');
+        const mm = document.getElementById('mm');
+        if (hh.textContent !== h) hh.textContent = h;
+        if (mm.textContent !== m) mm.textContent = m;
+
+        // seconds bar
+        const secNum = parseInt(s, 10);
+        const bar = document.getElementById('secBar');
+        if (bar) bar.style.width = `${((secNum + 1) / 60) * 100}%`;
+
+        // date
+        const dateStr = new Intl.DateTimeFormat('pt-BR', {
+          timeZone: 'America/Sao_Paulo',
+          weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+        }).format(now);
+        document.getElementById('dateText').textContent = dateStr;
+
+        // welcome time
+        const weekday = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(now);
+        const timeStr = `${h}:${m}:${s}`;
+        const shortDate = new Intl.DateTimeFormat('pt-BR', {
+          timeZone: 'America/Sao_Paulo',
+          day: '2-digit', month: '2-digit', year: 'numeric'
+        }).format(now);
+        const wt = document.getElementById('welcomeTime');
+        if (wt) wt.textContent = `${weekday}, ${timeStr} | ${shortDate}`;
       }
-      localStorage.setItem('clockMode', mode);
-    }
 
-    function update() {
-      const now = new Date();
-      // 24-hour time (no AM/PM)
-      const parts = new Intl.DateTimeFormat('pt-BR', {
-        timeZone: 'America/Sao_Paulo',
-        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-      }).formatToParts(now);
+      tick();
+      setInterval(tick, 1000);
 
-      let h = '--', m = '--', s = '--';
-      for (const p of parts) {
-        if (p.type === 'hour') h = p.value;
-        if (p.type === 'minute') m = p.value;
-        if (p.type === 'second') s = p.value;
+      // ── View Toggle ──
+      const flipView = document.getElementById('flipView');
+      const welcomeView = document.getElementById('welcomeView');
+      const toggleBtn = document.getElementById('toggleViewBtn');
+
+      function setMode(mode) {
+        if (mode === 'welcome') {
+          flipView.style.display = 'none';
+          welcomeView.style.display = 'flex';
+          toggleBtn.textContent = 'mostrar relógio';
+        } else {
+          flipView.style.display = 'flex';
+          welcomeView.style.display = 'none';
+          toggleBtn.textContent = 'alternar visual';
+        }
+        localStorage.setItem('clockMode', mode);
+        renderDynamicCategories();
       }
 
-      // ensure two digits
-      h = pad(h);
-      m = pad(m);
-
-      document.getElementById('hours').textContent = h;
-      document.getElementById('minutes').textContent = m;
-
-      const dateStr = new Intl.DateTimeFormat('pt-BR', {
-        timeZone: 'America/Sao_Paulo',
-        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
-      }).format(now);
-      document.getElementById('date').textContent = dateStr;
-
-      // welcome view time string (like "Sunday, 16:56:27 | 25/08/2024")
-      const shortDate = new Intl.DateTimeFormat('pt-BR', {
-        timeZone: 'America/Sao_Paulo',
-        day: '2-digit', month: '2-digit', year: 'numeric'
-      }).format(now);
-      const timeStr = new Intl.DateTimeFormat('pt-BR', {
-        timeZone: 'America/Sao_Paulo',
-        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-      }).format(now);
-      const weekday = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(now);
-      const welcomeTime = `${weekday}, ${timeStr} | ${shortDate}`;
-      const welcomeEl = document.getElementById('welcome-time');
-      if (welcomeEl) welcomeEl.textContent = welcomeTime;
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      const btn = document.getElementById('toggleStyleBtn');
-      btn.addEventListener('click', () => {
-        const mode = localStorage.getItem('clockMode') === 'welcome' ? 'flip' : 'welcome';
-        setMode(mode);
+      toggleBtn.addEventListener('click', () => {
+        const cur = localStorage.getItem('clockMode') === 'welcome' ? 'flip' : 'welcome';
+        setMode(cur);
       });
 
-      const saved = localStorage.getItem('clockMode') || 'flip';
-      setMode(saved);
+      setMode(localStorage.getItem('clockMode') || 'flip');
 
-      update();
-      setInterval(update, 1000);
+      // ── Fullscreen ──
+      const fsBtn = document.getElementById('fullscreenBtn');
+      function toggleFs() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          document.exitFullscreen();
+        }
+      }
+      fsBtn.addEventListener('click', toggleFs);
+      document.addEventListener('keydown', e => {
+        if ((e.key === 'f' || e.key === 'F') && document.activeElement.tagName !== 'INPUT') {
+          e.preventDefault();
+          toggleFs();
+        }
+      });
 
-      // Dock magnify logic
-      const dock = document.getElementById('dock');
-      const items = Array.from(dock.querySelectorAll('.dock-item'));
-      const maxScale = 1.8;
-      const influence = 120; // px
+      // ── Dock magnify (subtle, matching /work scale behavior) ──
+      const dockBar = document.getElementById('dockBar');
 
-      function onMove(e) {
-        const rect = dock.getBoundingClientRect();
-        const mouseX = e.clientX;
-        const mouseY = e.clientY;
+      dockBar.addEventListener('mousemove', e => {
+        const items = dockBar.querySelectorAll('.dock-item');
+        const mx = e.clientX;
+        const maxScale = 1.35;
+        const radius = 80;
+
         items.forEach(item => {
           const r = item.getBoundingClientRect();
-          const ix = r.left + r.width/2;
-          const iy = r.top + r.height/2;
-          const dx = Math.abs(ix - mouseX);
-          const dy = Math.abs(iy - mouseY);
-          const dist = Math.sqrt(dx*dx + dy*dy);
-          const k = Math.max(0, (influence - dist) / influence);
-          const scale = 1 + (maxScale - 1) * k;
-          item.style.transform = `translateY(${ -8 * k }px) scale(${scale})`;
-          item.style.zIndex = Math.round(1000 * scale);
+          const cx = r.left + r.width / 2;
+          const dist = Math.abs(mx - cx);
+          if (dist < radius) {
+            const t = Math.cos((dist / radius) * (Math.PI / 2));
+            const sc = 1 + (maxScale - 1) * t;
+            item.style.transform = `translateY(-${4 * t}px) scale(${sc})`;
+          } else {
+            item.style.transform = '';
+          }
         });
-      }
-
-      function resetItems() {
-        items.forEach(item => {
-          item.style.transform = '';
-          item.style.zIndex = '';
-        });
-      }
-
-      dock.addEventListener('mousemove', onMove);
-      dock.addEventListener('mouseleave', resetItems);
-
-      // Make dock keyboard accessible: scale on focus
-      items.forEach(item => {
-        item.addEventListener('focus', () => { item.style.transform = 'translateY(-6px) scale(1.25)'; });
-        item.addEventListener('blur', () => { item.style.transform = ''; });
       });
-    });
+
+      dockBar.addEventListener('mouseleave', () => {
+        dockBar.querySelectorAll('.dock-item').forEach(i => i.style.transform = '');
+      });
+
+      // ── Custom links (localStorage) ──
+      function getLinks() {
+        const s = localStorage.getItem('dock_links');
+        return s ? JSON.parse(s) : [];
+      }
+
+      function saveLinks(arr) {
+        localStorage.setItem('dock_links', JSON.stringify(arr));
+      }
+
+      function renderDockLinks() {
+        const dyn = document.getElementById('dynamicDock');
+        dyn.innerHTML = '';
+        getLinks().forEach(l => {
+          const a = document.createElement('a');
+          a.className = 'dock-item';
+          a.href = l.url;
+          a.target = '_blank';
+          a.rel = 'noopener';
+          a.innerHTML = `<span class="dock-tip">${l.name}</span><i style="font-size:18px; color: var(--muted);">●</i>`;
+          dyn.appendChild(a);
+        });
+      }
+
+      function renderDynamicCategories() {
+        const links = getLinks();
+        if (!links.length) return;
+
+        const area = document.getElementById('categoriesArea');
+        // remove old dynamic ones
+        area.querySelectorAll('.dynamic-cat').forEach(el => el.remove());
+
+        const byCategory = {};
+        links.forEach(l => {
+          const cat = l.category || 'general';
+          if (!byCategory[cat]) byCategory[cat] = [];
+          byCategory[cat].push(l);
+        });
+
+        const catLabels = {
+          general: '~/custom ✏️',
+          dev: '~/custom-dev 💻',
+          tools: '~/tools 🛠️',
+          social: '~/social 🌐'
+        };
+
+        Object.keys(byCategory).forEach(key => {
+          const div = document.createElement('div');
+          div.className = 'dynamic-cat';
+          const title = catLabels[key] || `~/${key}`;
+          div.innerHTML = `
+            <div class="cat-title">${title}</div>
+            <ul class="cat-links">
+              ${byCategory[key].map(l => `<li><a href="${l.url}" target="_blank" rel="noopener">${l.name}</a></li>`).join('')}
+            </ul>
+          `;
+          area.appendChild(div);
+        });
+      }
+
+      renderDockLinks();
+      renderDynamicCategories();
+
+      // ── Add Link Modal ──
+      const addModal = document.getElementById('addModal');
+      document.getElementById('addLinkBtn').addEventListener('click', () => addModal.classList.add('open'));
+      document.getElementById('cancelAdd').addEventListener('click', () => addModal.classList.remove('open'));
+      addModal.addEventListener('click', e => { if (e.target === addModal) addModal.classList.remove('open'); });
+
+      document.getElementById('addForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const name = document.getElementById('fName').value.trim();
+        const url = document.getElementById('fUrl').value.trim();
+        const category = document.getElementById('fCat').value;
+        if (!name || !url) return;
+
+        const links = getLinks();
+        links.push({ id: Date.now(), name, url, category });
+        saveLinks(links);
+        renderDockLinks();
+        renderDynamicCategories();
+        addModal.classList.remove('open');
+        document.getElementById('addForm').reset();
+      });
+
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') addModal.classList.remove('open');
+      });
+
+    })();
   </script>
 </body>
 </html>
