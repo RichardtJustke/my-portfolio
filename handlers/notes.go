@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
@@ -17,41 +16,42 @@ type NoteItem struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-var notesMutex sync.RWMutex
+var (
+	notesMutex sync.RWMutex
+	dataPath   = filepath.Join("data", "notes.json")
+)
 
-func getUserNotesPath(username string) string {
+func initStore() {
 	_ = os.MkdirAll("data", 0755)
-	if username == "" {
-		return filepath.Join("data", "notes_guest.json")
-	}
-	return filepath.Join("data", fmt.Sprintf("notes_%s.json", username))
-}
-
-// GetNotes returns persistent scratchpad notes for the authenticated user
-func GetNotes(c *fiber.Ctx) error {
-	username := GetAuthenticatedUser(c)
-
-	notesMutex.RLock()
-	defer notesMutex.RUnlock()
-
-	userPath := getUserNotesPath(username)
-	data, err := os.ReadFile(userPath)
-	if err != nil || len(data) == 0 {
+	if _, err := os.Stat(dataPath); os.IsNotExist(err) {
 		initial := []NoteItem{
 			{
 				ID:        "tab-1",
 				Title:     "Tarefas",
-				Content:   "# Minhas Tarefas\n- [ ] Configurar atalhos CLI\n- [ ] Testar API do Clima\n- [x] Ajustar dock transparente",
+				Content:   "- [ ] Configurar atalhos CLI\n- [ ] Testar API do Clima\n- [x] Ajustar dock transparente",
 				UpdatedAt: "hoje",
 			},
 			{
 				ID:        "tab-2",
 				Title:     "Comandos CLI",
-				Content:   "```bash\ngo run main.go\ngit status\ncurl http://127.0.0.1:3000/clock\n```",
+				Content:   "go run main.go\ngit status\ncurl http://127.0.0.1:3000/clock",
 				UpdatedAt: "hoje",
 			},
 		}
-		return c.JSON(initial)
+		data, _ := json.MarshalIndent(initial, "", "  ")
+		_ = os.WriteFile(dataPath, data, 0644)
+	}
+}
+
+// GetNotes returns all persistent scratchpad notes
+func GetNotes(c *fiber.Ctx) error {
+	notesMutex.RLock()
+	defer notesMutex.RUnlock()
+
+	initStore()
+	data, err := os.ReadFile(dataPath)
+	if err != nil {
+		return c.JSON([]NoteItem{})
 	}
 
 	var notes []NoteItem
@@ -59,15 +59,8 @@ func GetNotes(c *fiber.Ctx) error {
 	return c.JSON(notes)
 }
 
-// SaveNotes persists scratchpad notes ONLY for authenticated users
+// SaveNotes persists all scratchpad notes
 func SaveNotes(c *fiber.Ctx) error {
-	username := GetAuthenticatedUser(c)
-	if username == "" {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "🔒 Faça login para salvar suas notas no banco de dados!",
-		})
-	}
-
 	var notes []NoteItem
 	if err := c.BodyParser(&notes); err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
@@ -76,15 +69,15 @@ func SaveNotes(c *fiber.Ctx) error {
 	notesMutex.Lock()
 	defer notesMutex.Unlock()
 
-	userPath := getUserNotesPath(username)
+	initStore()
 	data, err := json.MarshalIndent(notes, "", "  ")
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
-	if err := os.WriteFile(userPath, data, 0644); err != nil {
+	if err := os.WriteFile(dataPath, data, 0644); err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
-	return c.JSON(fiber.Map{"status": "ok", "count": len(notes), "user": username})
+	return c.JSON(fiber.Map{"status": "ok", "count": len(notes)})
 }

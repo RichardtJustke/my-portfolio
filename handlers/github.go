@@ -34,6 +34,6 @@ func GithubContributions(c *fiber.Ctx) error {
 	}
 
 	c.Set("Content-Type", "text/html; charset=utf-8")
-	c.Set("Cache-Control", "public, max-age=1800")
+	c.Set("Cache-Control", "public, max-age=120")
 	return c.Send(body)
 }

@@ -15,30 +15,29 @@ type WallpaperItem struct {
 	ID        string `json:"id"`
 	Name      string `json:"name"`
 	DataURL   string `json:"data_url"`
-	Username  string `json:"username"`
 	CreatedAt string `json:"created_at"`
 }
 
-var wallMutex sync.RWMutex
+var (
+	wallMutex sync.RWMutex
+	wallPath  = filepath.Join("data", "wallpapers.json")
+)
 
-func getUserWallPath(username string) string {
+func initWallStore() {
 	_ = os.MkdirAll("data", 0755)
-	if username == "" {
-		return filepath.Join("data", "wallpapers_public.json")
+	if _, err := os.Stat(wallPath); os.IsNotExist(err) {
+		_ = os.WriteFile(wallPath, []byte("[]"), 0644)
 	}
-	return filepath.Join("data", fmt.Sprintf("wallpapers_%s.json", username))
 }
 
-// GetWallpapers returns saved wallpapers for the current authenticated user
+// GetWallpapers returns all saved wallpapers from database
 func GetWallpapers(c *fiber.Ctx) error {
-	username := GetAuthenticatedUser(c)
-
 	wallMutex.RLock()
 	defer wallMutex.RUnlock()
 
-	userPath := getUserWallPath(username)
-	data, err := os.ReadFile(userPath)
-	if err != nil || len(data) == 0 {
+	initWallStore()
+	data, err := os.ReadFile(wallPath)
+	if err != nil {
 		return c.JSON([]WallpaperItem{})
 	}
 
@@ -47,15 +46,8 @@ func GetWallpapers(c *fiber.Ctx) error {
 	return c.JSON(walls)
 }
 
-// SaveWallpaper saves a new uploaded wallpaper into the database ONLY for logged-in users
+// SaveWallpaper saves a new uploaded wallpaper into the database
 func SaveWallpaper(c *fiber.Ctx) error {
-	username := GetAuthenticatedUser(c)
-	if username == "" {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "🔒 Faça login para salvar wallpapers no banco de dados!",
-		})
-	}
-
 	var body struct {
 		Name    string `json:"name"`
 		DataURL string `json:"data_url"`
@@ -67,8 +59,8 @@ func SaveWallpaper(c *fiber.Ctx) error {
 	wallMutex.Lock()
 	defer wallMutex.Unlock()
 
-	userPath := getUserWallPath(username)
-	data, err := os.ReadFile(userPath)
+	initWallStore()
+	data, err := os.ReadFile(wallPath)
 	var walls []WallpaperItem
 	if err == nil {
 		_ = json.Unmarshal(data, &walls)
@@ -83,25 +75,20 @@ func SaveWallpaper(c *fiber.Ctx) error {
 		ID:        fmt.Sprintf("wall_%d", time.Now().UnixNano()),
 		Name:      name,
 		DataURL:   body.DataURL,
-		Username:  username,
 		CreatedAt: time.Now().Format("02/01/2006 15:04"),
 	}
 
+	// Unshift so latest is first
 	walls = append([]WallpaperItem{newItem}, walls...)
 
 	savedData, _ := json.MarshalIndent(walls, "", "  ")
-	_ = os.WriteFile(userPath, savedData, 0644)
+	_ = os.WriteFile(wallPath, savedData, 0644)
 
 	return c.JSON(newItem)
 }
 
-// DeleteWallpaper removes a wallpaper by ID for the logged-in user
+// DeleteWallpaper removes a wallpaper by ID
 func DeleteWallpaper(c *fiber.Ctx) error {
-	username := GetAuthenticatedUser(c)
-	if username == "" {
-		return c.Status(fiber.StatusUnauthorized).SendString("🔒 Faça login necessário")
-	}
-
 	id := c.Params("id")
 	if id == "" {
 		return c.Status(fiber.StatusBadRequest).SendString("ID required")
@@ -110,8 +97,8 @@ func DeleteWallpaper(c *fiber.Ctx) error {
 	wallMutex.Lock()
 	defer wallMutex.Unlock()
 
-	userPath := getUserWallPath(username)
-	data, err := os.ReadFile(userPath)
+	initWallStore()
+	data, err := os.ReadFile(wallPath)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).SendString("Not found")
 	}
@@ -127,7 +114,7 @@ func DeleteWallpaper(c *fiber.Ctx) error {
 	}
 
 	savedData, _ := json.MarshalIndent(filtered, "", "  ")
-	_ = os.WriteFile(userPath, savedData, 0644)
+	_ = os.WriteFile(wallPath, savedData, 0644)
 
 	return c.JSON(fiber.Map{"status": "deleted", "id": id})
 }
