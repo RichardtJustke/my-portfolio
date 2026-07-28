@@ -1,0 +1,7 @@
+.git
+.gitignore
+.env
+my-portfolio-v2
+server
+*.tmp
+*.log

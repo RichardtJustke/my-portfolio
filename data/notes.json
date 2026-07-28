@@ -1,0 +1,26 @@
+[
+  {
+    "id": "tab-1",
+    "title": "Tarefas",
+    "content": "- [ ] Configurar atalhos CLI\n- [ ] Testar API do Clima\n- [] Ajustar dock transparente",
+    "updated_at": "hoje"
+  },
+  {
+    "id": "tab-2",
+    "title": "Comandos CLI",
+    "content": "go run main.go\ngit status\ncurl http://127.0.0.1:3000/clock",
+    "updated_at": "hoje"
+  },
+  {
+    "id": "tab-1785237972511",
+    "title": "palmito doce",
+    "content": "teste aa a api",
+    "updated_at": ""
+  },
+  {
+    "id": "tab-1785238042773",
+    "title": "Nova Aba",
+    "content": "",
+    "updated_at": ""
+  }
+]

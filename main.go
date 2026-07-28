@@ -45,6 +45,7 @@ func main() {
 
 	app := fiber.New(fiber.Config{
 		CaseSensitive: true,
+		BodyLimit:     50 * 1024 * 1024, // 50MB limit for wallpapers
 	})
 
 	app.Use(logger.New())
@@ -129,6 +130,18 @@ func main() {
 	})
 
 	app.Get("/clock", handlers.Clock)
+	app.Get("/api/github-contributions", handlers.GithubContributions)
+	app.Get("/api/weather", handlers.WeatherHandler)
+	app.Get("/api/notes", handlers.GetNotes)
+	app.Post("/api/notes", handlers.SaveNotes)
+	app.Get("/api/news", handlers.NewsHandler)
+	app.Get("/api/wallpapers", handlers.GetWallpapers)
+	app.Post("/api/wallpapers", handlers.SaveWallpaper)
+	app.Delete("/api/wallpapers/:id", handlers.DeleteWallpaper)
+	app.Post("/api/register", handlers.RegisterHandler)
+	app.Post("/api/login", handlers.LoginHandler)
+	app.Post("/api/logout", handlers.LogoutHandler)
+	app.Get("/api/me", handlers.MeHandler)
 
 	port := os.Getenv("PORT")
 	if port == "" {

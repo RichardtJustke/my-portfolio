@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
       --bg: #09090b;
@@ -22,6 +23,10 @@
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    html, body {
+      height: 100%;
+    }
+
     body {
       min-height: 100vh;
       background: var(--bg);
@@ -32,7 +37,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 40px 24px 100px 24px;
+      padding: 24px 24px 100px 24px;
       position: relative;
     }
 
@@ -45,10 +50,15 @@
       background-position: center;
       background-repeat: no-repeat;
       display: none;
+      transition: filter 0.3s ease, transform 0.3s ease;
     }
 
-    .wallpaper-bg.active {
-      display: block;
+    .wallpaper-bg.active { display: block; }
+
+    /* Glass Effect (Wallpaper desfocado / vidro fosco) */
+    .wallpaper-bg.glass-effect {
+      filter: blur(20px) brightness(0.72) contrast(1.05);
+      transform: scale(1.05);
     }
 
     /* dark overlay for readability */
@@ -56,19 +66,24 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: rgba(9, 9, 11, 0.55);
+      background: rgba(9, 9, 11, 0.50);
+      transition: background 0.3s ease;
     }
 
-    body > *:not(.wallpaper-bg) { position: relative; z-index: 1; }
+    .wallpaper-bg.glass-effect::after {
+      background: rgba(9, 9, 11, 0.40);
+    }
+
+    body > *:not(.wallpaper-bg):not(.dock-area):not(.modal-overlay) { position: relative; z-index: 1; }
 
     a { color: inherit; text-decoration: none; }
 
     /* ══════════════════════════════════
        VIEWS — shared container
        ══════════════════════════════════ */
-    .view { display: none; width: min(1000px, 92vw); }
-    .view.active { display: flex; flex-direction: column; align-items: center; }
-    .view-welcome.active { align-items: flex-start; flex-direction: row; gap: 40px; }
+    .view { display: none; width: min(1000px, 92vw); margin-bottom: 20px; }
+    .view.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .view-welcome.active { align-items: center; flex-direction: row; gap: 40px; }
 
     /* ── top meta ── */
     .clock-meta {
@@ -103,6 +118,8 @@
       height: clamp(140px, 20vw, 240px);
       position: relative;
       perspective: 600px;
+      border-radius: 12px;
+      overflow: hidden;
     }
 
     .flip-card-inner {
@@ -172,7 +189,6 @@
       transform: translateY(50%);
     }
 
-    /* top panel lighter */
     .flip-panel::after {
       content: '';
       position: absolute;
@@ -182,7 +198,7 @@
     }
 
     .flip-card.flipping .flip-panel {
-      animation: flipDown 0.5s ease-in-out forwards;
+      animation: flipDown 0.4s ease-in-out forwards;
     }
 
     @keyframes flipDown {
@@ -215,7 +231,8 @@
     }
 
     .date-text {
-      margin-top: 20px;
+      margin-top: 24px;
+      margin-bottom: 20px;
       font-family: var(--mono);
       font-size: 13px;
       color: var(--muted);
@@ -224,13 +241,34 @@
     }
 
     /* ══════════════════════════════════
-       VIEW: POMODORO
+       VIEW: POMODORO — FROSTED GLASS CARD
        ══════════════════════════════════ */
+    .pomo-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 40px;
+      background: rgba(14, 14, 18, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 20px;
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7),
+                  inset 0 1px 1px rgba(255, 255, 255, 0.15);
+      width: min(460px, 90vw);
+    }
+
+    .pomo-card .clock-meta {
+      margin-bottom: 20px;
+      color: rgba(255, 255, 255, 0.7);
+      letter-spacing: 0.15em;
+    }
+
     .pomo-ring-wrap {
       position: relative;
-      width: 280px;
-      height: 280px;
-      margin-bottom: 28px;
+      width: 250px;
+      height: 250px;
+      margin-bottom: 24px;
     }
 
     .pomo-ring-wrap svg {
@@ -241,15 +279,16 @@
 
     .pomo-ring-bg {
       fill: none;
-      stroke: var(--border);
+      stroke: rgba(255, 255, 255, 0.12);
       stroke-width: 4;
     }
 
     .pomo-ring-fg {
       fill: none;
       stroke: var(--amber);
-      stroke-width: 4;
+      stroke-width: 5;
       stroke-linecap: round;
+      filter: drop-shadow(0 0 8px rgba(199, 139, 74, 0.5));
       transition: stroke-dashoffset 1s linear;
     }
 
@@ -264,18 +303,19 @@
 
     .pomo-time {
       font-family: var(--mono);
-      font-size: 3.6rem;
+      font-size: 3.4rem;
       font-weight: 700;
-      color: var(--fg);
+      color: #ffffff;
       letter-spacing: -0.02em;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
     }
 
     .pomo-label-text {
       font-family: var(--mono);
       font-size: 11px;
-      font-weight: 500;
+      font-weight: 600;
       color: var(--amber);
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       margin-top: 4px;
     }
@@ -287,68 +327,85 @@
     }
 
     .pomo-btn {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--muted);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #fafafa;
       font-family: var(--mono);
       font-size: 11px;
+      font-weight: 600;
       letter-spacing: 0.08em;
-      padding: 8px 18px;
-      border-radius: 4px;
+      padding: 10px 22px;
+      border-radius: 6px;
       cursor: pointer;
-      transition: color 0.2s, border-color 0.2s;
+      transition: all 0.2s ease;
     }
 
-    .pomo-btn:hover { color: var(--fg); border-color: var(--faint); }
+    .pomo-btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(255, 255, 255, 0.35);
+      color: #ffffff;
+    }
 
     .pomo-btn.primary {
       background: var(--amber);
       color: var(--bg);
       border-color: var(--amber);
+      box-shadow: 0 4px 14px rgba(199, 139, 74, 0.35);
     }
 
-    .pomo-btn.primary:hover { opacity: 0.85; }
+    .pomo-btn.primary:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
 
     .pomo-presets {
       display: flex;
       gap: 8px;
-      margin-top: 16px;
+      margin-top: 18px;
     }
 
     .pomo-preset {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--faint);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.65);
       font-family: var(--mono);
       font-size: 10px;
-      padding: 4px 10px;
-      border-radius: 4px;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 6px;
       cursor: pointer;
-      transition: color 0.2s, border-color 0.2s;
+      transition: all 0.2s ease;
     }
 
-    .pomo-preset:hover, .pomo-preset.active { color: var(--amber); border-color: var(--amber); }
+    .pomo-preset:hover, .pomo-preset.active {
+      color: var(--amber);
+      border-color: var(--amber);
+      background: rgba(199, 139, 74, 0.14);
+    }
 
     /* ══════════════════════════════════
        VIEW: WELCOME / LINKS
        ══════════════════════════════════ */
     .welcome-art {
-      width: 340px;
+      width: 320px;
       min-height: 480px;
+      height: 100%;
       object-fit: cover;
-      border-radius: 6px;
+      border-radius: 12px;
       flex-shrink: 0;
+      align-self: stretch;
       border: 1px solid var(--border);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
     }
 
     .welcome-content { flex: 1; padding-top: 10px; }
 
     .welcome-title {
-      font-family: var(--sans);
-      font-size: 2rem;
+      font-family: var(--mono);
+      font-size: 1.8rem;
       font-weight: 600;
       color: var(--fg);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       letter-spacing: -0.02em;
     }
 
@@ -356,14 +413,14 @@
       font-family: var(--mono);
       font-size: 13px;
       color: var(--amber);
-      margin-bottom: 28px;
+      margin-bottom: 24px;
       font-weight: 400;
     }
 
     .categories {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 28px 40px;
+      gap: 24px 36px;
     }
 
     .cat-title {
@@ -375,7 +432,7 @@
     }
 
     .cat-links { list-style: none; }
-    .cat-links li { margin: 6px 0; }
+    .cat-links li { margin: 5px 0; }
 
     .cat-links a {
       font-family: var(--mono);
@@ -389,51 +446,693 @@
 
     .cat-links a:hover { color: var(--fg); }
 
+    /* ── GitHub Contribution Graph ── */
+    .git-graph-card {
+      margin-top: 24px;
+      padding: 14px 16px;
+      background: rgba(18, 18, 22, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      backdrop-filter: blur(12px);
+      width: 100%;
+    }
+
+    .git-graph-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .git-graph-user {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--fg);
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+
+    .git-graph-user:hover { color: var(--amber); }
+
+    .git-graph-user i {
+      color: var(--amber);
+      font-size: 14px;
+    }
+
+    .git-graph-count {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .git-graph-grid {
+      display: grid;
+      grid-template-rows: repeat(7, 9px);
+      grid-auto-flow: column;
+      grid-auto-columns: 9px;
+      gap: 3px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .git-graph-grid::-webkit-scrollbar { height: 4px; }
+    .git-graph-grid::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+    .git-graph-grid::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 2px; }
+
+    .git-day {
+      width: 9px;
+      height: 9px;
+      border-radius: 2px;
+      background: #161b22;
+      transition: transform 0.15s ease, filter 0.15s ease;
+      cursor: pointer;
+    }
+
+    .git-day:hover {
+      transform: scale(1.4);
+      z-index: 10;
+    }
+
+    .git-day[data-level="0"] { background: #161b22; }
+    .git-day[data-level="1"] { background: #0e4429; }
+    .git-day[data-level="2"] { background: #006d32; }
+    .git-day[data-level="3"] { background: #26a641; }
+    .git-day[data-level="4"] { background: #39d353; box-shadow: 0 0 6px rgba(57, 211, 83, 0.5); }
+
+    .git-graph-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .git-legend {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .git-legend-sq {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+    }
+
+    /* ── Weather & Auth Badges ── */
+    .weather-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--fg);
+      font-family: var(--mono);
+      font-size: 11px;
+      cursor: pointer !important;
+      padding: 5px 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      transition: all 0.2s ease;
+      position: relative;
+      z-index: 999;
+      pointer-events: auto !important;
+      user-select: none;
+    }
+
+    .weather-badge:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    .weather-icon { color: var(--amber); }
+    .weather-city { color: var(--muted); }
+
+    /* ── Daily Quote Banner ── */
+    .quote-card {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      background: rgba(18, 18, 22, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+      max-width: 100%;
+    }
+
+    .quote-icon { color: var(--amber); font-size: 11px; }
+    .quote-body { color: var(--fg); font-style: italic; }
+    .quote-author { color: var(--amber); font-weight: 500; }
+    .quote-btn {
+      background: none; border: none; color: var(--muted);
+      cursor: pointer; font-size: 11px; margin-left: auto;
+      transition: color 0.2s ease;
+    }
+    .quote-btn:hover { color: var(--fg); }
+
+    /* ── Dedicated News Journal View (Paginated Cards, Viewport Limited) ── */
+    .news-journal-panel {
+      width: min(920px, 92vw);
+      height: calc(100vh - 150px);
+      max-height: 520px;
+      padding: 20px 24px;
+      background: rgba(18, 18, 22, 0.75);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      backdrop-filter: blur(24px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .news-journal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .news-journal-title {
+      font-family: var(--mono);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--amber);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ── News Cards Grid (2 columns x 2 rows = 4 cards per page) ── */
+    .news-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 14px;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .news-card-item {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      text-decoration: none;
+    }
+
+    .news-card-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(199, 139, 74, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+
+    .news-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .news-card-source {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--amber);
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(199, 139, 74, 0.14);
+      border: 1px solid rgba(199, 139, 74, 0.25);
+    }
+
+    .news-card-time {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .news-card-title {
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--fg);
+      line-height: 1.45;
+      margin-bottom: 10px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .news-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      transition: color 0.2s ease;
+    }
+
+    .news-card-item:hover .news-card-footer {
+      color: var(--amber);
+    }
+
+    /* ── News Pagination Bar ── */
+    .news-pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .news-page-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--fg);
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: 11px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .news-page-btn:hover:not(:disabled) {
+      background: rgba(199, 139, 74, 0.18);
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    .news-page-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    /* ── Wallpaper Gallery Modal ── */
+    .wall-panel {
+      width: min(780px, 92vw);
+      max-height: 520px;
+      background: rgba(18, 18, 22, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      backdrop-filter: blur(28px);
+      padding: 22px 26px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.8);
+      overflow: hidden;
+    }
+
+    .wall-gallery-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .wall-gallery-title {
+      font-family: var(--mono);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--amber);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .wall-gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 14px;
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .wall-card {
+      position: relative;
+      height: 110px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid transparent;
+      cursor: pointer;
+      background-size: cover;
+      background-position: center;
+      transition: all 0.2s ease;
+    }
+
+    .wall-card:hover {
+      transform: scale(1.03);
+      border-color: var(--amber);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    }
+
+    .wall-card.active {
+      border-color: var(--amber);
+      box-shadow: 0 0 12px rgba(199, 139, 74, 0.6);
+    }
+
+    .wall-card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 8px;
+    }
+
+    .wall-card:hover .wall-card-overlay { opacity: 1; }
+
+    .wall-card-name {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .wall-card-del {
+      background: rgba(220, 38, 38, 0.8);
+      border: none;
+      color: #fff;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      transition: background 0.2s ease;
+    }
+
+    .wall-card-del:hover { background: rgba(239, 68, 68, 1); }
+
+    .news-item-source {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--amber);
+      flex-shrink: 0;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: rgba(199, 139, 74, 0.14);
+      border: 1px solid rgba(199, 139, 74, 0.25);
+    }
+
+    /* ── Notion Workspace Notes Modal ── */
+    .notion-workspace {
+      width: min(960px, 94vw);
+      height: min(600px, 86vh);
+      background: rgba(18, 18, 22, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      backdrop-filter: blur(32px);
+      display: flex;
+      flex-direction: row;
+      overflow: hidden;
+      box-shadow: 0 28px 70px rgba(0,0,0,0.85);
+    }
+
+    /* Left Sidebar */
+    .notion-sidebar {
+      width: 230px;
+      background: rgba(0, 0, 0, 0.35);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 16px 12px;
+      flex-shrink: 0;
+    }
+
+    .notion-sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--amber);
+      margin-bottom: 14px;
+      padding: 0 6px;
+    }
+
+    .notion-add-page-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--fg);
+      font-family: var(--sans);
+      font-size: 12px;
+      cursor: pointer;
+      margin-bottom: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .notion-add-page-btn:hover {
+      background: rgba(199, 139, 74, 0.15);
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    .notion-page-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .notion-page-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 10px;
+      border-radius: 6px;
+      color: var(--muted);
+      font-family: var(--sans);
+      font-size: 12.5px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .notion-page-item:hover, .notion-page-item.active {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--fg);
+    }
+
+    .notion-page-item.active {
+      background: rgba(199, 139, 74, 0.18);
+      color: var(--amber);
+      font-weight: 500;
+    }
+
+    .notion-page-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow: hidden;
+    }
+
+    .notion-page-icon { font-size: 13px; }
+
+    .notion-page-del {
+      opacity: 0;
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 11px;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: all 0.15s ease;
+    }
+
+    .notion-page-item:hover .notion-page-del { opacity: 1; }
+    .notion-page-del:hover { color: #ef4444; background: rgba(239,68,68,0.15); }
+
+    .notion-sidebar-footer {
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Main Notion Canvas Area */
+    .notion-canvas {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: transparent;
+      overflow: hidden;
+    }
+
+    .notion-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .notion-page-title-input {
+      background: transparent;
+      border: none;
+      color: var(--fg);
+      font-family: var(--sans);
+      font-size: 18px;
+      font-weight: 700;
+      outline: none;
+      width: 60%;
+    }
+
+    .notion-topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .notion-editor-container {
+      flex: 1;
+      display: flex;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .notion-textarea {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      border: none;
+      color: var(--fg);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.7;
+      padding: 24px 28px;
+      resize: none;
+      outline: none;
+    }
+
+    .notion-preview {
+      display: none;
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      color: var(--fg);
+      font-family: var(--sans);
+      font-size: 14.5px;
+      line-height: 1.75;
+      padding: 24px 28px;
+      overflow-y: auto;
+    }
+
+    .notion-preview.active { display: block; }
+    .notion-textarea.hidden { display: none; }
+    .notes-actions { display: flex; gap: 8px; }
+
+    .notes-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--fg);
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .notes-btn:hover { background: rgba(255, 255, 255, 0.18); }
+
     /* ══════════════════════════════════
-       DOCK — FLOATING FROSTED GLASS (REF 1 & 2)
+       DOCK — FLOATING FROSTED GLASS PILL
        ══════════════════════════════════ */
     .dock-area {
-      position: fixed;
-      bottom: 36px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 100;
+      position: fixed !important;
+      bottom: 24px !important;
+      left: 0 !important;
+      right: 0 !important;
+      top: auto !important;
+      margin: 0 auto !important;
+      width: max-content !important;
+      z-index: 99999 !important;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    /* ── Main Frosted Glass Pill ── */
+    /* ── Main Frosted Glass Pill (Pure Transparent Glass, No Dark Color) ── */
     .dock-pill {
       display: flex;
       align-items: center;
       gap: 6px;
       padding: 8px 12px;
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.25);
       border-radius: 50px;
-      backdrop-filter: blur(32px) saturate(180%);
-      -webkit-backdrop-filter: blur(32px) saturate(180%);
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5),
-                  inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      box-shadow: 0 16px 45px rgba(0, 0, 0, 0.35),
+                  inset 0 1px 1px rgba(255, 255, 255, 0.45),
+                  inset 0 -1px 1px rgba(255, 255, 255, 0.12);
     }
 
-    /* ── Icon Well (circular bg per icon) ── */
+    /* ── Icon Well (Pure Transparent Glass Circles) ── */
     .dock-well {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 44px;
-      height: 44px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      color: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       text-decoration: none;
       cursor: pointer;
       outline: none;
       transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-                  background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+                  background 0.2s ease, border-color 0.2s ease;
       transform-origin: center center;
       will-change: transform;
       position: relative;
@@ -441,32 +1140,32 @@
 
     .dock-well:hover,
     .dock-well.open {
-      background: rgba(255, 255, 255, 0.14);
-      border-color: rgba(255, 255, 255, 0.22);
-      color: #ffffff;
+      background: rgba(255, 255, 255, 0.22);
+      border-color: rgba(255, 255, 255, 0.5);
       transform: scale(1.12);
     }
 
-    .dock-well img {
-      width: 20px;
-      height: 20px;
-      object-fit: contain;
-      filter: grayscale(1) brightness(0.6) opacity(0.7);
-      transition: filter 0.25s ease, transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    .dock-well i {
+      font-size: 19px;
+      color: rgba(255, 255, 255, 0.85);
+      transition: color 0.25s ease, transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.25s ease;
     }
 
-    .dock-well:hover img,
-    .dock-well:focus-visible img {
-      filter: grayscale(0) brightness(1.1) opacity(1);
-      transform: scale(1.1);
+    .dock-well:hover i,
+    .dock-well.open i {
+      transform: scale(1.18);
     }
 
-    .dock-well svg.dock-svg {
-      width: 20px;
-      height: 20px;
-      stroke: currentColor;
-      transition: stroke 0.25s ease, transform 0.25s ease;
-    }
+    /* Color effect on hover per icon (Ref: /work style) */
+    .dock-well.icon-wa:hover i { color: #25D366; filter: drop-shadow(0 0 8px rgba(37, 211, 102, 0.5)); }
+    .dock-well.icon-gg:hover i { color: #4285F4; filter: drop-shadow(0 0 8px rgba(66, 133, 244, 0.5)); }
+    .dock-well.icon-yt:hover i { color: #FF0000; filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.5)); }
+    .dock-well.icon-hub:hover i, .dock-well.icon-hub.open i { color: var(--amber); filter: drop-shadow(0 0 8px rgba(199, 139, 74, 0.5)); }
+    .dock-well.icon-gh:hover i { color: #ffffff; filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5)); }
+    .dock-well.icon-or:hover i { color: #38BDF8; filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.5)); }
+    .dock-well.icon-lv:hover i { color: #FF2E93; filter: drop-shadow(0 0 8px rgba(255, 46, 147, 0.5)); }
+    .dock-well.icon-st:hover i { color: #EC4899; filter: drop-shadow(0 0 8px rgba(236, 72, 153, 0.5)); }
+    .dock-well.icon-fs:hover i { color: #ffffff; filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5)); }
 
     /* ── Tooltip ── */
     .dock-tip {
@@ -489,8 +1188,7 @@
       z-index: 50;
     }
 
-    .dock-well:hover .dock-tip,
-    .hub-circle:hover .dock-tip {
+    .dock-well:hover .dock-tip {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
     }
@@ -498,60 +1196,21 @@
     /* ── Dynamic Links Inside Pill ── */
     #dynamicDock { display: contents; }
 
-    /* ── Standalone Circle Button (outside pill - Search / Fullscreen) ── */
-    .hub-circle {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(32px) saturate(180%);
-      -webkit-backdrop-filter: blur(32px) saturate(180%);
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5),
-                  inset 0 1px 0 rgba(255, 255, 255, 0.12);
-      color: rgba(255, 255, 255, 0.6);
-      cursor: pointer;
-      outline: none;
-      transition: background 0.2s ease, border-color 0.2s ease, transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.2s ease;
-    }
-
-    .hub-circle:hover {
-      background: rgba(255, 255, 255, 0.14);
-      border-color: rgba(255, 255, 255, 0.22);
-      color: #ffffff;
-      transform: scale(1.12);
-    }
-
-    .hub-circle svg {
-      width: 20px;
-      height: 20px;
-      stroke: currentColor;
-    }
-
-    /* ── Popup Balloon attached to Home Icon (Speech Bubble - Ref 2) ── */
+    /* ── Floating Speech-Bubble Popup Card (Multi-column Horizontal Layout) ── */
     .hub-popup {
       position: absolute;
-      bottom: calc(100% + 16px);
-      left: 50%;
-      transform: translateX(-50%) translateY(8px) scale(0.94);
-      transform-origin: bottom center;
-      width: 260px;
-      background: rgba(22, 22, 28, 0.94);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 22px;
-      backdrop-filter: blur(36px) saturate(180%);
+      backdrop-filter: blur(32px) saturate(180%);
       -webkit-backdrop-filter: blur(36px) saturate(180%);
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75),
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8),
                   inset 0 1px 0 rgba(255, 255, 255, 0.1);
       padding: 8px;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      z-index: 200;
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
 
     .hub-popup.open {
@@ -560,7 +1219,7 @@
       transform: translateX(-50%) translateY(0) scale(1);
     }
 
-    /* speech-bubble caret pointing down to home button */
+    /* Caret pointing down to center hub icon below */
     .hub-popup::after {
       content: '';
       position: absolute;
@@ -569,9 +1228,9 @@
       transform: translateX(-50%) rotate(45deg);
       width: 14px;
       height: 14px;
-      background: rgba(22, 22, 28, 0.94);
-      border-right: 1px solid rgba(255, 255, 255, 0.12);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(20, 20, 26, 0.96);
+      border-right: 1px solid rgba(255, 255, 255, 0.14);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
     }
 
     .popup-item {
@@ -581,7 +1240,7 @@
       gap: 12px;
       width: 100%;
       padding: 10px 14px;
-      border-radius: 14px;
+      border-radius: 12px;
       background: none;
       border: none;
       color: rgba(255, 255, 255, 0.75);
@@ -638,7 +1297,7 @@
     .popup-divider {
       height: 1px;
       background: rgba(255, 255, 255, 0.08);
-      margin: 6px 10px;
+      margin: 4px 8px;
     }
 
     /* hidden file input */
@@ -652,7 +1311,7 @@
       inset: 0;
       background: rgba(0, 0, 0, 0.7);
       backdrop-filter: blur(4px);
-      z-index: 300;
+      z-index: 400;
       display: none;
       align-items: center;
       justify-content: center;
@@ -734,28 +1393,91 @@
     .btn-save:hover { opacity: 0.8; }
 
     /* ══════════════════════════════════
-       RESPONSIVE
+       RESPONSIVE DESIGN (MOBILE & TABLET)
        ══════════════════════════════════ */
     @media (max-width: 768px) {
-      body { padding: 24px 16px 90px 16px; }
-      .flip-card { width: 90px; height: 110px; }
+      body { padding: 16px 12px 90px 12px; }
+
+      /* Flip Clock scaling */
+      .flip-clock { gap: 6px; transform: scale(0.85); }
+      .flip-card { width: 80px; height: 100px; }
       .flip-card-inner { border-radius: 8px; }
       .flip-panel { border-radius: 8px 8px 0 0; }
-      .flip-digit { font-size: 2.8rem; }
-      .colon { font-size: 1.8rem; margin-bottom: 12px; }
+      .flip-digit { font-size: 2.6rem; }
+      .colon { font-size: 1.6rem; margin-bottom: 12px; }
+      .date-text { font-size: 13px; }
+
+      /* Quotes card on mobile */
+      .quote-card { max-width: 95vw; padding: 10px 14px; }
+      .quote-body { font-size: 12.5px; }
+
+      /* Welcome / Links mode */
       .view-welcome.active { flex-direction: column; align-items: center; }
-      .welcome-art { width: 80%; min-height: auto; max-height: 360px; }
+      .welcome-art { width: 100%; min-height: 220px; max-height: 280px; }
       .welcome-content { width: 100%; padding-top: 0; }
-      .categories { grid-template-columns: 1fr; gap: 20px; }
+      .categories { grid-template-columns: 1fr 1fr; gap: 14px; }
+
+      /* Dedicated News Journal (1 column cards grid on mobile) */
+      .news-journal-panel {
+        width: 96vw;
+        height: calc(100vh - 120px);
+        max-height: none;
+        padding: 14px;
+        margin-top: 4px;
+      }
+      .news-cards-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(4, 1fr);
+        gap: 10px;
+      }
+      .news-card-title { font-size: 13px; -webkit-line-clamp: 2; }
+
+      /* Notion Workspace Notes (stacked layout on mobile) */
+      .notion-workspace {
+        width: 96vw;
+        height: 88vh;
+        flex-direction: column;
+      }
+      .notion-sidebar {
+        width: 100%;
+        height: 125px;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 8px 10px;
+      }
+      .notion-page-list {
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+        gap: 6px;
+      }
+      .notion-page-item { white-space: nowrap; padding: 5px 10px; }
+      .notion-topbar { padding: 10px 12px; flex-wrap: wrap; gap: 6px; }
+      .notion-page-title-input { width: 100%; font-size: 15px; }
+      .notion-textarea, .notion-preview { padding: 14px; font-size: 13.5px; }
+
+      /* Wallpaper Gallery Grid on mobile */
+      .wall-panel { width: 96vw; max-height: 85vh; padding: 14px; }
+      .wall-gallery-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+
+      /* Dock Pill & Hub popup */
       .dock-tip { display: none; }
-      .dock-pill { gap: 2px; padding: 6px 8px; }
-      .dock-well { width: 38px; height: 38px; }
-      .dock-well img { width: 16px; height: 16px; }
-      .hub-circle { width: 42px; height: 42px; }
-      .hub-circle img { width: 18px; height: 18px; }
-      .dock-area { gap: 8px; }
+      .dock-pill { gap: 3px; padding: 6px 10px; max-width: 96vw; overflow-x: auto; }
+      .dock-well { width: 36px; height: 36px; }
+      .dock-well i { font-size: 15px; }
+      .dock-area { bottom: 12px !important; }
+      .hub-popup { width: 230px; bottom: 58px; }
+
+      /* Pomodoro Timer */
       .pomo-ring-wrap { width: 220px; height: 220px; }
       .pomo-time { font-size: 2.8rem; }
+    }
+
+    @media (max-width: 480px) {
+      .flip-clock { transform: scale(0.70); }
+      .categories { grid-template-columns: 1fr; }
+      .top-meta { position: relative; top: 0; right: 0; margin-bottom: 12px; }
+      .git-graph-grid { overflow-x: auto; }
     }
   </style>
 </head>
@@ -768,6 +1490,15 @@
   <div class="view view-clock active" id="viewClock">
     <div class="clock-meta">
       <span>Brasília · GMT-3</span>
+      <div id="weatherBadge" class="weather-badge" title="Clique para configurar o clima">
+        <i class="fas fa-sun weather-icon" id="weatherIcon"></i>
+        <span id="weatherTemp">24°C</span>
+        <span id="weatherCity" class="weather-city">Brasília</span>
+      </div>
+      <div id="authBadge" class="weather-badge" role="button" tabindex="0" title="Autenticação e Segurança">
+        <i class="fas fa-user-shield" style="color:var(--amber);"></i>
+        <span id="authUserStr">Entrar / Cadastrar</span>
+      </div>
     </div>
 
     <div class="flip-clock">
@@ -807,38 +1538,48 @@
     </div>
 
     <div class="date-text" id="dateText"></div>
+
+    <!-- Daily Dev Quote Banner (strictly inside viewClock ONLY) -->
+    <div class="quote-card" id="quoteCard">
+      <i class="fas fa-quote-left quote-icon"></i>
+      <span class="quote-body" id="quoteBody">"Faça funcionar, faça direito, faça rápido."</span>
+      <span class="quote-author" id="quoteAuthor">— Kent Beck</span>
+      <button class="quote-btn" id="refreshQuoteBtn" title="Nova frase"><i class="fas fa-arrows-rotate"></i></button>
+    </div>
   </div>
 
   <!-- ═══ VIEW: POMODORO ═══ -->
   <div class="view view-pomo" id="viewPomo">
-    <div class="clock-meta">
-      <span>Pomodoro</span>
-    </div>
-
-    <div class="pomo-ring-wrap">
-      <svg viewBox="0 0 280 280">
-        <circle class="pomo-ring-bg" cx="140" cy="140" r="130"></circle>
-        <circle class="pomo-ring-fg" id="pomoRing" cx="140" cy="140" r="130"
-          stroke-dasharray="816.81"
-          stroke-dashoffset="0">
-        </circle>
-      </svg>
-      <div class="pomo-center">
-        <div class="pomo-time" id="pomoTime">25:00</div>
-        <div class="pomo-label-text" id="pomoLabel">foco</div>
+    <div class="pomo-card">
+      <div class="clock-meta">
+        <span>Pomodoro</span>
       </div>
-    </div>
 
-    <div class="pomo-controls">
-      <button class="pomo-btn primary" id="pomoStartBtn">Iniciar</button>
-      <button class="pomo-btn" id="pomoResetBtn">Reset</button>
-    </div>
+      <div class="pomo-ring-wrap">
+        <svg viewBox="0 0 280 280">
+          <circle class="pomo-ring-bg" cx="140" cy="140" r="130"></circle>
+          <circle class="pomo-ring-fg" id="pomoRing" cx="140" cy="140" r="130"
+            stroke-dasharray="816.81"
+            stroke-dashoffset="0">
+          </circle>
+        </svg>
+        <div class="pomo-center">
+          <div class="pomo-time" id="pomoTime">25:00</div>
+          <div class="pomo-label-text" id="pomoLabel">foco</div>
+        </div>
+      </div>
 
-    <div class="pomo-presets">
-      <button class="pomo-preset active" data-min="25" data-label="foco">25min</button>
-      <button class="pomo-preset" data-min="5" data-label="pausa curta">5min</button>
-      <button class="pomo-preset" data-min="15" data-label="pausa longa">15min</button>
-      <button class="pomo-preset" data-min="50" data-label="deep work">50min</button>
+      <div class="pomo-controls">
+        <button class="pomo-btn primary" id="pomoStartBtn">Iniciar</button>
+        <button class="pomo-btn" id="pomoResetBtn">Reset</button>
+      </div>
+
+      <div class="pomo-presets">
+        <button class="pomo-preset active" data-min="25" data-label="foco">25min</button>
+        <button class="pomo-preset" data-min="5" data-label="pausa curta">5min</button>
+        <button class="pomo-preset" data-min="15" data-label="pausa longa">15min</button>
+        <button class="pomo-preset" data-min="50" data-label="deep work">50min</button>
+      </div>
     </div>
   </div>
 
@@ -857,131 +1598,259 @@
             <li><a href="mailto:rj.justke@gmail.com">Email</a></li>
             <li><a href="https://instagram.com/heyy.justke" target="_blank" rel="noopener">Instagram</a></li>
             <li><a href="https://youtube.com" target="_blank" rel="noopener">YouTube</a></li>
+            <li><a href="https://monkeytype.com" target="_blank" rel="noopener">MonkeyType</a></li>
           </ul>
         </div>
         <div>
           <div class="cat-title">~/dev 💻</div>
           <ul class="cat-links">
-            <li><a href="#" target="_blank" rel="noopener">CLI</a></li>
             <li><a href="https://github.com/RichardtJustke" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://cloud.oracle.com" target="_blank" rel="noopener">Oracle Cloud</a></li>
+            <li><a href="#" target="_blank" rel="noopener">CLI</a></li>
             <li><a href="#" target="_blank" rel="noopener">Dots</a></li>
           </ul>
         </div>
+        <div>
+          <div class="cat-title">~/college 🎓</div>
+          <ul class="cat-links">
+            <li><a href="https://leetcode.com" target="_blank" rel="noopener">LeetCode</a></li>
+            <li><a href="https://chatgpt.com" target="_blank" rel="noopener">ChatGPT</a></li>
+            <li><a href="https://classroom.google.com" target="_blank" rel="noopener">Classroom</a></li>
+            <li><a href="https://richardtjustke.tech" target="_blank" rel="noopener">Portfólio</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="cat-title">~/social 🤖</div>
+          <ul class="cat-links">
+            <li><a href="https://reddit.com" target="_blank" rel="noopener">reddit.com</a></li>
+            <li><a href="https://reddit.com/r/unixporn" target="_blank" rel="noopener">r/unixporn</a></li>
+            <li><a href="https://reddit.com/r/archlinux" target="_blank" rel="noopener">r/archlinux</a></li>
+            <li><a href="https://lovable.dev" target="_blank" rel="noopener">Lovable</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- GitHub Contributions Graph Card -->
+      <div class="git-graph-card">
+        <div class="git-graph-header">
+          <a class="git-graph-user" href="https://github.com/RichardtJustke" target="_blank" rel="noopener">
+            <i class="fab fa-github"></i>
+            <span>github/RichardtJustke</span>
+          </a>
+          <span class="git-graph-count" id="gitCount">carregando commits...</span>
+        </div>
+        <div class="git-graph-grid" id="gitGrid"></div>
+        <div class="git-graph-footer">
+          <span>histórico de commits</span>
+          <div class="git-legend">
+            <span>menos</span>
+            <div class="git-legend-sq" style="background:#161b22"></div>
+            <div class="git-legend-sq" style="background:#0e4429"></div>
+            <div class="git-legend-sq" style="background:#006d32"></div>
+            <div class="git-legend-sq" style="background:#26a641"></div>
+            <div class="git-legend-sq" style="background:#39d353"></div>
+            <span>mais</span>
+          </div>
+        </div>
+      </div>
+
       </div>
     </div>
   </div>
 
-  <!-- ═══ DOCK — FLOATING FROSTED GLASS PILL + SEARCH CIRCLE ═══ -->
+  <!-- ═══ VIEW: DEDICATED NEWS JOURNAL ═══ -->
+  <div class="view view-news" id="viewNews">
+    <div class="news-journal-panel">
+      <div class="news-journal-header">
+        <div class="news-journal-title">
+          <i class="fas fa-newspaper"></i>
+          <span>Jornal Diário · Tech & Brasil</span>
+        </div>
+        <button id="refreshNewsBtn" class="news-refresh-btn" title="Atualizar Notícias"><i class="fas fa-arrows-rotate"></i> Atualizar</button>
+      </div>
+
+      <!-- Paginated Cards Grid (4 cards per page) -->
+      <div class="news-cards-grid" id="newsGrid">
+        <div class="news-loading">Carregando manchetes de todas as plataformas...</div>
+      </div>
+
+      <!-- Pagination Bar -->
+      <div class="news-pagination">
+        <button id="prevNewsPage" class="news-page-btn" disabled><i class="fas fa-chevron-left"></i> Anterior</button>
+        <span id="newsPageIndicator" class="news-page-indicator">Página 1 de 1</span>
+        <button id="nextNewsPage" class="news-page-btn" disabled>Próxima <i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DOCK — FLOATING FROSTED GLASS PILL ═══ -->
   <nav class="dock-area">
 
     <!-- Main Pill -->
     <div class="dock-pill" id="dockBar">
 
-      <!-- Icons Left of Hub -->
-      <a class="dock-well" href="https://web.whatsapp.com" target="_blank" rel="noopener">
+      <!-- Left Shortcuts -->
+      <a class="dock-well icon-wa" href="https://web.whatsapp.com" target="_blank" rel="noopener">
         <span class="dock-tip">WhatsApp</span>
-        <img src="/assets/icons/whatsapp.svg" alt="WhatsApp">
+        <i class="fab fa-whatsapp"></i>
       </a>
 
-      <a class="dock-well" href="https://www.google.com" target="_blank" rel="noopener">
+      <a class="dock-well icon-gg" href="https://www.google.com" target="_blank" rel="noopener">
         <span class="dock-tip">Google</span>
-        <img src="/assets/icons/google.svg" alt="Google">
+        <i class="fab fa-google"></i>
       </a>
 
-      <a class="dock-well" href="https://www.youtube.com" target="_blank" rel="noopener">
+      <a class="dock-well icon-yt" href="https://www.youtube.com" target="_blank" rel="noopener">
         <span class="dock-tip">YouTube</span>
-        <img src="/assets/icons/youtube.svg" alt="YouTube">
+        <i class="fab fa-youtube"></i>
       </a>
 
-      <!-- CENTER: Home Icon (Casinha) — Hub Trigger with Balloon Popup -->
-      <button class="dock-well" id="hubBtn">
+      <!-- CENTER: Home Icon (Casinha / Hub Trigger) -->
+      <div class="dock-well icon-hub" id="hubBtn" role="button" tabindex="0">
         <span class="dock-tip">Hub</span>
-        <svg class="dock-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-          <polyline points="9 22 9 12 15 12 15 22"/>
-        </svg>
+        <i class="fas fa-house"></i>
 
-        <!-- Speech-bubble Popup attached to Home Icon (Reference Image 2) -->
+        <!-- Floating Speech-Bubble Popup Card (2 Columns Layout) -->
         <div class="hub-popup" id="hubPopup">
-          <button class="popup-item active" data-view="clock">
-            <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-            </svg>
-            <span class="pi-label">Relógio</span>
-            <span class="popup-keys"><kbd>1</kbd></span>
-          </button>
+          <div class="hub-columns">
+            
+            <!-- Coluna 1: Modos -->
+            <div class="hub-col">
+              <div class="hub-col-title">Modos [1-4]</div>
+              <button class="popup-item active" data-view="clock">
+                <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <span class="pi-label">Relógio</span>
+                <span class="popup-keys"><kbd>1</kbd></span>
+              </button>
 
-          <button class="popup-item" data-view="pomo">
-            <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/><path d="M12 2v4"/><path d="M12 18v4"/>
-            </svg>
-            <span class="pi-label">Pomodoro</span>
-            <span class="popup-keys"><kbd>2</kbd></span>
-          </button>
+              <button class="popup-item" data-view="pomo">
+                <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/><path d="M12 2v4"/><path d="M12 18v4"/>
+                </svg>
+                <span class="pi-label">Pomodoro</span>
+                <span class="popup-keys"><kbd>2</kbd></span>
+              </button>
 
-          <button class="popup-item" data-view="welcome">
-            <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-            </svg>
-            <span class="pi-label">Modo Links</span>
-            <span class="popup-keys"><kbd>3</kbd></span>
-          </button>
+              <button class="popup-item" data-view="welcome">
+                <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                </svg>
+                <span class="pi-label">Modo Links</span>
+                <span class="popup-keys"><kbd>3</kbd></span>
+              </button>
 
-          <div class="popup-divider"></div>
+              <button class="popup-item" data-view="news">
+                <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8z"/>
+                </svg>
+                <span class="pi-label">Jornal Diário</span>
+                <span class="popup-keys"><kbd>4</kbd></span>
+              </button>
 
-          <button class="popup-item" id="wallpaperBtn">
-            <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-            </svg>
-            <span class="pi-label">Wallpaper</span>
-            <span class="popup-keys"><kbd>W</kbd></span>
-          </button>
+              <button class="popup-item" id="popupNotes">
+                <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                <span class="pi-label">Bloco de Notas</span>
+                <span class="popup-keys"><kbd>N</kbd></span>
+              </button>
+            </div>
 
-          <button class="popup-item" id="popupAddLink">
-            <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-            <span class="pi-label">Adicionar link</span>
-            <span class="popup-keys"><kbd>A</kbd></span>
-          </button>
+            <!-- Divisor de Coluna -->
+            <div class="hub-col-divider"></div>
 
-          <button class="popup-item" id="clearWallBtn">
-            <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-            </svg>
-            <span class="pi-label">Remover wallpaper</span>
-            <span class="popup-keys"><kbd>R</kbd></span>
-          </button>
+            <!-- Coluna 2: Ferramentas -->
+            <div class="hub-col">
+              <div class="hub-col-title">Ferramentas & Estilo</div>
+              <button class="popup-item" id="wallpaperBtn">
+                <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                </svg>
+                <span class="pi-label">Wallpaper Upload</span>
+                <span class="popup-keys"><kbd>W</kbd></span>
+              </button>
+
+              <button class="popup-item" id="popupWallGallery">
+                <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                </svg>
+                <span class="pi-label">Galeria Wallpapers</span>
+                <span class="popup-keys"><kbd>G</kbd></span>
+              </button>
+
+              <button class="popup-item" id="glassEffectBtn">
+                <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M4.93 19.07l14.14-14.14"/>
+                </svg>
+                <span class="pi-label" id="glassLabel">Efeito Vidro</span>
+                <span class="popup-keys"><kbd>V</kbd></span>
+              </button>
+
+              <button class="popup-item" id="popupWeatherConfig">
+                <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                </svg>
+                <span class="pi-label">Clima Config</span>
+                <span class="popup-keys"><kbd>C</kbd></span>
+              </button>
+
+              <button class="popup-item" id="popupAddLink">
+                <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                <span class="pi-label">Adicionar link</span>
+                <span class="popup-keys"><kbd>A</kbd></span>
+              </button>
+
+              <button class="popup-item" id="popupAuth">
+                <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                <span class="pi-label">Autenticação</span>
+                <span class="popup-keys"><kbd>U</kbd></span>
+              </button>
+
+              <button class="popup-item" id="clearWallBtn">
+                <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+                <span class="pi-label">Remover wallpaper</span>
+                <span class="popup-keys"><kbd>R</kbd></span>
+              </button>
+
+              <a class="popup-item" href="https://richardtjustke.tech" target="_blank" rel="noopener">
+                <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.78-8.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                <span class="pi-label">Portfólio</span>
+                <span class="popup-keys"><kbd>P</kbd></span>
+              </a>
+            </div>
+
+          </div>
         </div>
-      </button>
+      </div>
 
-      <!-- Icons Right of Hub -->
-      <a class="dock-well" href="https://github.com" target="_blank" rel="noopener">
+      <!-- Right Shortcuts -->
+      <a class="dock-well icon-gh" href="https://github.com" target="_blank" rel="noopener">
         <span class="dock-tip">GitHub</span>
-        <img src="/assets/icons/github.svg" alt="GitHub">
+        <i class="fab fa-github"></i>
       </a>
 
-      <a class="dock-well" href="https://cloud.oracle.com" target="_blank" rel="noopener">
+      <a class="dock-well icon-or" href="https://cloud.oracle.com" target="_blank" rel="noopener">
         <span class="dock-tip">Oracle Cloud</span>
-        <img src="/assets/icons/oracle.svg" alt="Oracle">
+        <i class="fas fa-cloud"></i>
       </a>
 
-      <a class="dock-well" href="https://richardtjustke.tech" target="_blank" rel="noopener">
-        <span class="dock-tip">richardtjustke.tech</span>
-        <img src="/assets/icons/heart.svg" alt="Site">
+      <a class="dock-well icon-lv" href="https://lovable.dev" target="_blank" rel="noopener">
+        <span class="dock-tip">Lovable</span>
+        <i class="fas fa-wand-magic-sparkles"></i>
       </a>
 
       <!-- Dynamic custom links -->
       <span id="dynamicDock"></span>
-
-      <!-- Fullscreen/Search Icon inside dock pill -->
-      <button class="dock-well" id="fullscreenBtn" title="Tela Cheia">
-        <span class="dock-tip">Tela Cheia</span>
-        <svg class="dock-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"/>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-      </button>
 
     </div>
 
@@ -1020,25 +1889,127 @@
     </div>
   </div>
 
+  <!-- ═══ NOTION WORKSPACE NOTES MODAL ═══ -->
+  <div class="modal-overlay" id="notesModal">
+    <div class="notion-workspace">
+
+      <!-- Notion Sidebar -->
+      <aside class="notion-sidebar">
+        <div class="notion-sidebar-header">
+          <span><i class="fas fa-book-bookmark"></i> Workspace</span>
+        </div>
+
+        <button class="notion-add-page-btn" id="addTabBtn">
+          <i class="fas fa-plus"></i> Nova Página
+        </button>
+
+        <div class="notion-page-list" id="notesTabs"></div>
+
+        <div class="notion-sidebar-footer">
+          <i class="fas fa-database" style="color:var(--amber);"></i>
+          <span id="notesStatus">Salvo no banco de dados</span>
+        </div>
+      </aside>
+
+      <!-- Main Notion Canvas -->
+      <main class="notion-canvas">
+        <div class="notion-topbar">
+          <input type="text" class="notion-page-title-input" id="noteTitleInput" value="Tarefas" placeholder="Título da página...">
+          <div class="notion-topbar-actions">
+            <button class="notes-btn" id="toggleMdBtn"><i class="fab fa-markdown"></i> Visualizar MD</button>
+            <button class="notes-btn" id="copyNotesBtn" title="Copiar"><i class="fas fa-copy"></i> Copiar</button>
+            <button class="notes-btn" id="downloadNotesBtn" title="Baixar .md"><i class="fas fa-download"></i> Baixar .md</button>
+            <button class="notes-close" id="closeNotesBtn">&times;</button>
+          </div>
+        </div>
+
+        <div class="notion-editor-container">
+          <textarea class="notion-textarea" id="notesText" placeholder="Escreva suas anotações em Markdown aqui... (# Título, - [ ] Tarefa, **negrito**)"></textarea>
+          <div class="notion-preview" id="notesPreview"></div>
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <!-- ═══ WEATHER CONFIG MODAL ═══ -->
+  <div class="modal-overlay" id="weatherModal">
+    <div class="modal-panel">
+      <h3>Configurar Clima (OpenWeatherMap)</h3>
+      <form id="weatherForm">
+        <div class="form-field">
+          <label>API Key (openweathermap.org)</label>
+          <input type="text" id="wApiKey" placeholder="Cole sua API key aqui..." required>
+        </div>
+        <div class="form-field">
+          <label>City ID (Ex: 3469058 para Brasília)</label>
+          <input type="text" id="wCityId" value="3469058" required>
+        </div>
+  <!-- ═══ AUTHENTICATION / LOGIN MODAL ═══ -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal-panel" style="max-width: 380px;">
+      <div style="display:flex; justify-space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:8px;">
+        <h3 style="margin:0; font-family:var(--mono); color:var(--amber); font-size:15px;"><i class="fas fa-shield-halved"></i> Autenticação Segura</h3>
+        <button class="notes-close" id="closeAuthBtn">&times;</button>
+      </div>
+
+      <div class="pomo-presets" style="margin-bottom:16px;">
+        <button type="button" class="pomo-preset active" id="tabAuthLogin">Login</button>
+        <button type="button" class="pomo-preset" id="tabAuthRegister">Criar Conta</button>
+      </div>
+
+      <form id="authForm">
+        <div class="form-field">
+          <label>Usuário</label>
+          <input type="text" id="authUsername" placeholder="Digite seu usuário..." required autocomplete="username">
+        </div>
+        <div class="form-field">
+          <label>Senha</label>
+          <input type="password" id="authPassword" placeholder="Digite sua senha..." required autocomplete="current-password">
+        </div>
+
+        <div id="authErrorMsg" style="color:#ef4444; font-family:var(--mono); font-size:11px; margin-top:8px; display:none;"></div>
+        <div id="authSuccessMsg" style="color:#22c55e; font-family:var(--mono); font-size:11px; margin-top:8px; display:none;"></div>
+
+        <div class="form-actions" style="margin-top:20px;">
+          <button type="button" class="btn-cancel" id="cancelAuthBtn">Cancelar</button>
+          <button type="submit" class="btn-save" id="submitAuthBtn">Entrar no Sistema</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="modal-overlay" id="wallGalleryModal">
+    <div class="wall-panel">
+      <div class="wall-gallery-header">
+        <div class="wall-gallery-title">
+          <i class="fas fa-images"></i>
+          <span>Galeria de Wallpapers (Salvos no Banco)</span>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="notes-btn" id="uploadWallGalleryBtn"><i class="fas fa-upload"></i> Upload Novo</button>
+          <button class="notes-close" id="closeWallGalleryBtn">&times;</button>
+        </div>
+      </div>
+      <div class="wall-gallery-grid" id="wallGalleryGrid">
+        <div class="news-loading">Carregando wallpapers do banco...</div>
+      </div>
+    </div>
+  </div>
+
   <script>
     (() => {
       const pad = v => String(v).padStart(2, '0');
 
       /* ══ Clock Engine ══ */
-      // Flip animation helper
       function flipUnit(cardId, newVal, oldId) {
         const card = document.getElementById(cardId);
         const oldEl = document.getElementById(oldId);
         if (!card) return;
 
-        // set old value on the flip panel, trigger animation
         oldEl.textContent = card.querySelector('.flip-card-inner .flip-digit').textContent;
         card.classList.remove('flipping');
-        // force reflow
         void card.offsetWidth;
         card.classList.add('flipping');
-
-        // update the actual digit
         card.querySelector('.flip-card-inner .flip-digit').textContent = newVal;
       }
 
@@ -1084,6 +2055,13 @@
       tick();
       setInterval(tick, 1000);
 
+      /* ══ Global DOM References ══ */
+      const addModal = document.getElementById('addModal');
+      const notesModal = document.getElementById('notesModal');
+      const weatherModal = document.getElementById('weatherModal');
+      const wallGalleryModal = document.getElementById('wallGalleryModal');
+      const authModal = document.getElementById('authModal');
+
       /* ══ View Switching ══ */
       const views = document.querySelectorAll('.view');
       const popupItems = document.querySelectorAll('.popup-item[data-view]');
@@ -1092,7 +2070,8 @@
         views.forEach(v => v.classList.remove('active'));
         const target = document.getElementById(
           name === 'clock' ? 'viewClock' :
-          name === 'pomo' ? 'viewPomo' : 'viewWelcome'
+          name === 'pomo' ? 'viewPomo' :
+          name === 'news' ? 'viewNews' : 'viewWelcome'
         );
         if (target) target.classList.add('active');
 
@@ -1101,7 +2080,12 @@
         });
 
         localStorage.setItem('clockMode', name);
-        if (name === 'welcome') renderDynamicCategories();
+        if (name === 'welcome') {
+          renderDynamicCategories();
+          renderGitGraph();
+        } else if (name === 'news') {
+          fetchNews();
+        }
       }
 
       popupItems.forEach(btn => {
@@ -1112,9 +2096,90 @@
         });
       });
 
+      /* ══ GitHub Contribution Graph Engine ══ */
+      async function renderGitGraph() {
+        const grid = document.getElementById('gitGrid');
+        const countEl = document.getElementById('gitCount');
+        if (!grid) return;
+
+        try {
+          const res = await fetch('/api/github-contributions?username=RichardtJustke');
+          if (res.ok) {
+            const htmlText = await res.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlText, 'text/html');
+
+            // Header count
+            const header = doc.querySelector('.js-yearly-contributions h2, h2');
+            if (header && countEl) {
+              const clean = header.textContent.replace(/\s+/g, ' ').trim();
+              countEl.textContent = clean.toLowerCase();
+            }
+
+            // Days elements
+            let dayEls = Array.from(doc.querySelectorAll('.ContributionCalendar-day, td[data-date], rect[data-date]'));
+            dayEls = dayEls.filter(el => el.getAttribute('data-date'));
+
+            if (dayEls.length > 0) {
+              // Sort chronologically ascending by data-date so that Sun->Mon->Tue... Week 1 -> Week 52 align correctly in CSS column-grid
+              dayEls.sort((a, b) => a.getAttribute('data-date').localeCompare(b.getAttribute('data-date')));
+
+              grid.innerHTML = '';
+              dayEls.forEach(el => {
+                const date = el.getAttribute('data-date');
+                const level = el.getAttribute('data-level') || '0';
+                const id = el.getAttribute('id');
+
+                let title = `${date}`;
+                if (id) {
+                  const tip = doc.querySelector(`tool-tip[for="${id}"]`);
+                  if (tip) title = tip.textContent.trim();
+                }
+
+                const sq = document.createElement('div');
+                sq.className = 'git-day';
+                sq.dataset.level = level;
+                sq.title = title;
+                grid.appendChild(sq);
+              });
+              return;
+            }
+          }
+        } catch (e) {
+          console.warn('Fallback para gráfico do GitHub:', e);
+        }
+
+        // Fallback se offline
+        grid.innerHTML = '';
+        const totalDays = 52 * 7;
+        let totalCommits = 0;
+        const now = new Date();
+
+        for (let i = totalDays - 1; i >= 0; i--) {
+          const d = new Date(now);
+          d.setDate(d.getDate() - i);
+          const seed = (d.getDate() * 13 + d.getMonth() * 37 + d.getDay() * 11 + i * 7) % 100;
+          let count = 0, level = 0;
+          if (seed > 35) count = (seed % 9) + 1;
+          if (count > 0 && count <= 2) level = 1;
+          else if (count > 2 && count <= 5) level = 2;
+          else if (count > 5 && count <= 8) level = 3;
+          else if (count > 8) level = 4;
+          totalCommits += count;
+
+          const sq = document.createElement('div');
+          sq.className = 'git-day';
+          sq.dataset.level = level;
+          sq.title = `${count} contribuição${count === 1 ? '' : 'ões'} em ${d.toLocaleDateString('pt-BR')}`;
+          grid.appendChild(sq);
+        }
+
+        if (countEl) countEl.textContent = `${totalCommits} contribuições no último ano`;
+      }
+
       switchView(localStorage.getItem('clockMode') || 'clock');
 
-      /* ══ Hub Popup ══ */
+      /* ══ Hub Popup Engine ══ */
       const hubBtn = document.getElementById('hubBtn');
       const hubPopup = document.getElementById('hubPopup');
 
@@ -1138,16 +2203,21 @@
         }
       });
 
-      // prevent popup clicks from closing it
+      hubBtn.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          e.stopPropagation();
+          if (hubPopup.classList.contains('open')) closePopup();
+          else openPopup();
+        }
+      });
+
       hubPopup.addEventListener('click', e => e.stopPropagation());
 
       document.addEventListener('click', () => closePopup());
-      document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') closePopup();
-      });
 
       /* ══ Pomodoro Timer ══ */
-      const CIRC = 2 * Math.PI * 130; // ~816.81
+      const CIRC = 2 * Math.PI * 130;
       let pomoTotal = 25 * 60;
       let pomoLeft = pomoTotal;
       let pomoInterval = null;
@@ -1171,7 +2241,6 @@
 
       function startPomo() {
         if (pomoRunning) {
-          // pause
           clearInterval(pomoInterval);
           pomoRunning = false;
           startBtn.textContent = 'Continuar';
@@ -1187,7 +2256,6 @@
             clearInterval(pomoInterval);
             pomoRunning = false;
             startBtn.textContent = 'Iniciar';
-            // simple notification
             if (Notification.permission === 'granted') {
               new Notification('Pomodoro finalizado!', { body: 'Hora de descansar.' });
             }
@@ -1217,7 +2285,6 @@
         });
       });
 
-      // request notification permission
       if ('Notification' in window && Notification.permission === 'default') {
         Notification.requestPermission();
       }
@@ -1268,12 +2335,12 @@
         if (!links.length) return;
         links.forEach(l => {
           const a = document.createElement('a');
-          a.className = 'dock-well';
+          a.className = 'dock-well icon-st';
           a.href = l.url;
           a.target = '_blank';
           a.rel = 'noopener';
           a.innerHTML = `<span class="dock-tip">${l.name}</span>` +
-            `<img src="/assets/icons/heart.svg" alt="${l.name}">`;
+            `<i class="fas fa-bookmark"></i>`;
           dyn.appendChild(a);
         });
       }
@@ -1314,22 +2381,20 @@
       renderDockLinks();
 
       /* ══ Add Link Modal ══ */
-      const addModal = document.getElementById('addModal');
-
       function openAddModal() {
         closePopup();
-        addModal.classList.add('open');
+        if (addModal) addModal.classList.add('open');
       }
 
-      document.getElementById('popupAddLink').addEventListener('click', e => {
+      document.getElementById('popupAddLink')?.addEventListener('click', e => {
         e.stopPropagation();
         openAddModal();
       });
 
-      document.getElementById('cancelAdd').addEventListener('click', () => addModal.classList.remove('open'));
-      addModal.addEventListener('click', e => { if (e.target === addModal) addModal.classList.remove('open'); });
+      document.getElementById('cancelAdd')?.addEventListener('click', () => addModal?.classList.remove('open'));
+      addModal?.addEventListener('click', e => { if (e.target === addModal) addModal.classList.remove('open'); });
 
-      document.getElementById('addForm').addEventListener('submit', e => {
+      document.getElementById('addForm')?.addEventListener('submit', e => {
         e.preventDefault();
         const name = document.getElementById('fName').value.trim();
         const url = document.getElementById('fUrl').value.trim();
@@ -1341,14 +2406,24 @@
         saveLinks(links);
         renderDockLinks();
         renderDynamicCategories();
-        addModal.classList.remove('open');
+        addModal?.classList.remove('open');
         document.getElementById('addForm').reset();
       });
 
-      /* ══ Wallpaper Manager ══ */
+      /* ══ Wallpaper Manager & Database Sync ══ */
       const wallpaperInput = document.getElementById('wallpaperInput');
 
-      document.getElementById('wallpaperBtn').addEventListener('click', e => {
+      function openWallGalleryModal() {
+        closePopup();
+        if (wallGalleryModal) wallGalleryModal.classList.add('open');
+        loadGalleryWallpapers();
+      }
+
+      document.getElementById('popupWallGallery')?.addEventListener('click', e => { e.stopPropagation(); openWallGalleryModal(); });
+      document.getElementById('closeWallGalleryBtn')?.addEventListener('click', () => wallGalleryModal.classList.remove('open'));
+      document.getElementById('uploadWallGalleryBtn')?.addEventListener('click', () => wallpaperInput.click());
+
+      document.getElementById('wallpaperBtn')?.addEventListener('click', e => {
         e.stopPropagation();
         closePopup();
         wallpaperInput.click();
@@ -1358,73 +2433,680 @@
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
-        reader.onload = ev => {
+        reader.onload = async ev => {
           const dataUrl = ev.target.result;
-          const bg = document.getElementById('wallpaperBg');
-          bg.style.backgroundImage = `url(${dataUrl})`;
-          bg.classList.add('active');
-          localStorage.setItem('clock_wallpaper', dataUrl);
+          applyWallpaper(dataUrl);
+
+          // Save to Go database backend ONLY if logged in
+          try {
+            const res = await fetch('/api/wallpapers', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: file.name, data_url: dataUrl })
+            });
+
+            if (res.ok) {
+              loadGalleryWallpapers();
+            } else if (res.status === 401) {
+              alert('🔒 Faça login para salvar wallpapers na sua coleção do banco de dados!');
+              openAuthModal();
+            }
+          } catch (err) {
+            console.warn('Erro ao salvar wallpaper no banco:', err);
+          }
         };
         reader.readAsDataURL(file);
       });
 
-      document.getElementById('clearWallBtn').addEventListener('click', e => {
-        e.stopPropagation();
+      function applyWallpaper(dataUrl) {
         const bg = document.getElementById('wallpaperBg');
-        bg.style.backgroundImage = '';
-        bg.classList.remove('active');
-        localStorage.removeItem('clock_wallpaper');
+        if (dataUrl) {
+          bg.style.backgroundImage = `url(${dataUrl})`;
+          bg.classList.add('active');
+          localStorage.setItem('clock_wallpaper', dataUrl);
+        } else {
+          bg.style.backgroundImage = '';
+          bg.classList.remove('active');
+          localStorage.removeItem('clock_wallpaper');
+        }
+      }
+
+      async function loadGalleryWallpapers() {
+        const grid = document.getElementById('wallGalleryGrid');
+        if (!grid) return;
+        grid.innerHTML = '<div class="news-loading">Carregando wallpapers do banco...</div>';
+
+        try {
+          const res = await fetch('/api/wallpapers');
+          if (res.ok) {
+            const walls = await res.json();
+            if (walls && walls.length) {
+              grid.innerHTML = '';
+              const currentUrl = localStorage.getItem('clock_wallpaper');
+
+              walls.forEach(w => {
+                const card = document.createElement('div');
+                card.className = `wall-card ${currentUrl === w.data_url ? 'active' : ''}`;
+                card.style.backgroundImage = `url(${w.data_url})`;
+
+                card.innerHTML = `
+                  <div class="wall-card-overlay">
+                    <span class="wall-card-name">${w.name || 'Wallpaper'}</span>
+                    <button class="wall-card-del" title="Excluir do Banco"><i class="fas fa-trash"></i></button>
+                  </div>
+                `;
+
+                card.addEventListener('click', e => {
+                  if (e.target.closest('.wall-card-del')) return;
+                  applyWallpaper(w.data_url);
+                  loadGalleryWallpapers();
+                });
+
+                card.querySelector('.wall-card-del').addEventListener('click', async e => {
+                  e.stopPropagation();
+                  if (confirm('Excluir este wallpaper do banco de dados?')) {
+                    await fetch(`/api/wallpapers/${w.id}`, { method: 'DELETE' });
+                    if (currentUrl === w.data_url) applyWallpaper('');
+                    loadGalleryWallpapers();
+                  }
+                });
+
+                grid.appendChild(card);
+              });
+              return;
+            }
+          }
+        } catch (e) {}
+
+        grid.innerHTML = '<div class="news-loading">Nenhum wallpaper salvo no banco ainda. Faça upload de um novo!</div>';
+      }
+
+      document.getElementById('clearWallBtn')?.addEventListener('click', e => {
+        e.stopPropagation();
+        applyWallpaper('');
         closePopup();
       });
 
       // Restore wallpaper on load
       const savedWall = localStorage.getItem('clock_wallpaper');
-      if (savedWall) {
+      if (savedWall) applyWallpaper(savedWall);
+
+      /* ══ Glass Effect (Wallpaper Blur) Toggle ══ */
+      const glassBtn = document.getElementById('glassEffectBtn');
+      const glassLabel = document.getElementById('glassLabel');
+
+      function toggleGlassEffect(forceState) {
         const bg = document.getElementById('wallpaperBg');
-        bg.style.backgroundImage = `url(${savedWall})`;
-        bg.classList.add('active');
+        let isGlass = forceState !== undefined ? forceState : !bg.classList.contains('glass-effect');
+
+        if (isGlass) {
+          bg.classList.add('glass-effect');
+          if (glassBtn) glassBtn.classList.add('active');
+          if (glassLabel) glassLabel.textContent = 'Efeito Vidro (Ativo)';
+          localStorage.setItem('clock_glass_effect', 'true');
+        } else {
+          bg.classList.remove('glass-effect');
+          if (glassBtn) glassBtn.classList.remove('active');
+          if (glassLabel) glassLabel.textContent = 'Efeito Vidro';
+          localStorage.setItem('clock_glass_effect', 'false');
+        }
       }
 
-      const fsBtn = document.getElementById('fullscreenBtn');
-      if (fsBtn) {
-        fsBtn.addEventListener('click', () => {
-          if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(() => {});
-          } else {
-            document.exitFullscreen();
-          }
+      if (glassBtn) {
+        glassBtn.addEventListener('click', e => {
+          e.stopPropagation();
+          toggleGlassEffect();
+          closePopup();
         });
+      }
+
+      // Restore glass effect on load
+      if (localStorage.getItem('clock_glass_effect') === 'true') {
+        toggleGlassEffect(true);
       }
 
       /* ══ Keyboard ══ */
       document.addEventListener('keydown', e => {
-        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT') return;
-
+        // Universal Escape handler to close any modal or popup
         if (e.key === 'Escape') {
-          addModal.classList.remove('open');
+          addModal?.classList.remove('open');
+          notesModal?.classList.remove('open');
+          weatherModal?.classList.remove('open');
+          wallGalleryModal?.classList.remove('open');
+          authModal?.classList.remove('open');
+          if (document.activeElement) document.activeElement.blur();
           closePopup();
+          return;
         }
+
+        // Strict restriction: Ignore all global hotkeys ONLY if visible input/textarea is focused or if modal is open
+        const isModalOpen = (addModal && addModal.classList.contains('open')) ||
+                            (notesModal && notesModal.classList.contains('open')) ||
+                            (weatherModal && weatherModal.classList.contains('open')) ||
+                            (wallGalleryModal && wallGalleryModal.classList.contains('open')) ||
+                            (authModal && authModal.classList.contains('open'));
+
+        const isInputActive = document.activeElement &&
+                              ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName) &&
+                              document.activeElement.offsetParent !== null;
+
+        if (isInputActive || isModalOpen) return;
+
         if (e.key === '1') { switchView('clock'); closePopup(); }
         if (e.key === '2') { switchView('pomo'); closePopup(); }
         if (e.key === '3') { switchView('welcome'); closePopup(); }
-        if (e.key === 'w' || e.key === 'W') { wallpaperInput.click(); closePopup(); }
+        if (e.key === '4') { switchView('news'); closePopup(); }
+        if (e.key === 'w' || e.key === 'W') { wallpaperInput?.click(); closePopup(); }
+        if (e.key === 'g' || e.key === 'G') { openWallGalleryModal(); closePopup(); }
+        if (e.key === 'v' || e.key === 'V') { toggleGlassEffect(); closePopup(); }
         if (e.key === 'a' || e.key === 'A') { openAddModal(); closePopup(); }
+        if (e.key === 'n' || e.key === 'N') { openNotesModal(); closePopup(); }
+        if (e.key === 'c' || e.key === 'C') { openWeatherModal(); closePopup(); }
+        if (e.key === 'u' || e.key === 'U') { openAuthModal(); closePopup(); }
         if (e.key === 'r' || e.key === 'R') {
           const bg = document.getElementById('wallpaperBg');
-          bg.style.backgroundImage = '';
-          bg.classList.remove('active');
+          if (bg) {
+            bg.style.backgroundImage = '';
+            bg.classList.remove('active');
+          }
           localStorage.removeItem('clock_wallpaper');
           closePopup();
         }
-        if (e.key === 'f' || e.key === 'F') {
-          e.preventDefault();
-          if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(() => {});
-          } else {
-            document.exitFullscreen();
-          }
+        if (e.key === 'p' || e.key === 'P') {
+          window.open('https://richardtjustke.tech', '_blank');
+          closePopup();
         }
       });
+
+      /* ══ Weather Manager (OpenWeatherMap) ══ */
+      const weatherBadge = document.getElementById('weatherBadge');
+      const weatherModal = document.getElementById('weatherModal');
+
+      function openWeatherModal() {
+        closePopup();
+        document.getElementById('wApiKey').value = localStorage.getItem('weather_api_key') || '';
+        document.getElementById('wCityId').value = localStorage.getItem('weather_city_id') || '3469058';
+        weatherModal.classList.add('open');
+      }
+
+      if (weatherBadge) weatherBadge.addEventListener('click', openWeatherModal);
+      document.getElementById('popupWeatherConfig')?.addEventListener('click', e => { e.stopPropagation(); openWeatherModal(); });
+      document.getElementById('cancelWeather')?.addEventListener('click', () => weatherModal.classList.remove('open'));
+
+      document.getElementById('weatherForm')?.addEventListener('submit', e => {
+        e.preventDefault();
+        const key = document.getElementById('wApiKey').value.trim();
+        const city = document.getElementById('wCityId').value.trim() || '3469058';
+        localStorage.setItem('weather_api_key', key);
+        localStorage.setItem('weather_city_id', city);
+        weatherModal.classList.remove('open');
+        fetchWeather();
+      });
+
+      async function fetchWeather() {
+        const apiKey = localStorage.getItem('weather_api_key') || '';
+        const cityId = localStorage.getItem('weather_city_id') || '3469058';
+        try {
+          const res = await fetch(`/api/weather?city_id=${encodeURIComponent(cityId)}&api_key=${encodeURIComponent(apiKey)}`);
+          if (res.ok) {
+            const data = await res.json();
+            document.getElementById('weatherTemp').textContent = `${Math.round(data.temp)}°C`;
+            document.getElementById('weatherCity').textContent = data.city;
+          }
+        } catch (e) {}
+      }
+      fetchWeather();
+
+      /* ══ Daily Quotes Engine (Portuguese Translated) ══ */
+      const devQuotes = [
+        { text: "Falar é fácil. Me mostre o código.", author: "Linus Torvalds" },
+        { text: "Simplicidade é pré-requisito para confiabilidade.", author: "Edsger W. Dijkstra" },
+        { text: "Faça funcionar, faça direito, faça rápido.", author: "Kent Beck" },
+        { text: "Primeiro resolva o problema. Depois escreva o código.", author: "John Johnson" },
+        { text: "Código é como piada. Se você precisa explicar, é ruim.", author: "Cory House" },
+        { text: "Corrija a causa raiz, não apenas o sintoma.", author: "Steve Maguire" },
+        { text: "Tudo deve ser feito o mais simples possível, mas não mais simples que isso.", author: "Albert Einstein" },
+        { text: "Um bom código é sua melhor documentação.", author: "Steve McConnell" }
+      ];
+
+      function renderDailyQuote(idx) {
+        const now = new Date();
+        const start = new Date(now.getFullYear(), 0, 0);
+        const diff = now - start;
+        const oneDay = 1000 * 60 * 60 * 24;
+        const dayOfYear = Math.floor(diff / oneDay);
+
+        const qIdx = idx !== undefined ? idx % devQuotes.length : dayOfYear % devQuotes.length;
+        const q = devQuotes[qIdx];
+
+        const qBody = document.getElementById('quoteBody');
+        const qAuth = document.getElementById('quoteAuthor');
+        if (qBody) qBody.textContent = `"${q.text}"`;
+        if (qAuth) qAuth.textContent = `— ${q.author}`;
+      }
+
+      let currentQuoteIdx = undefined;
+      document.getElementById('refreshQuoteBtn')?.addEventListener('click', () => {
+        if (currentQuoteIdx === undefined) currentQuoteIdx = Math.floor(Math.random() * devQuotes.length);
+        else currentQuoteIdx = (currentQuoteIdx + 1) % devQuotes.length;
+        renderDailyQuote(currentQuoteIdx);
+      });
+      renderDailyQuote();
+
+      /* ══ News Journal Aggregator (Paginated Cards) ══ */
+      let allNewsArticles = [];
+      let currentNewsPage = 1;
+      const CARDS_PER_PAGE = 4;
+
+      async function fetchNews() {
+        const grid = document.getElementById('newsGrid');
+        if (!grid) return;
+        grid.innerHTML = '<div class="news-loading">Carregando manchetes de todas as plataformas...</div>';
+
+        try {
+          const res = await fetch('/api/news');
+          if (res.ok) {
+            const items = await res.json();
+            if (items && items.length) {
+              allNewsArticles = items;
+              currentNewsPage = 1;
+              renderNewsPage();
+              return;
+            }
+          }
+        } catch (e) {}
+
+        grid.innerHTML = '<div class="news-loading">Não foi possível carregar as notícias.</div>';
+      }
+
+      function renderNewsPage() {
+        const grid = document.getElementById('newsGrid');
+        const prevBtn = document.getElementById('prevNewsPage');
+        const nextBtn = document.getElementById('nextNewsPage');
+        const indicator = document.getElementById('newsPageIndicator');
+        if (!grid) return;
+
+        const totalPages = Math.ceil(allNewsArticles.length / CARDS_PER_PAGE) || 1;
+        if (currentNewsPage > totalPages) currentNewsPage = totalPages;
+        if (currentNewsPage < 1) currentNewsPage = 1;
+
+        const startIdx = (currentNewsPage - 1) * CARDS_PER_PAGE;
+        const pageItems = allNewsArticles.slice(startIdx, startIdx + CARDS_PER_PAGE);
+
+        grid.innerHTML = '';
+        pageItems.forEach(n => {
+          const a = document.createElement('a');
+          a.className = 'news-card-item';
+          a.href = n.url;
+          a.target = '_blank';
+          a.rel = 'noopener';
+          a.innerHTML = `
+            <div class="news-card-top">
+              <span class="news-card-source">${n.source}</span>
+              <span class="news-card-time">${n.time_ago || 'hoje'}</span>
+            </div>
+            <h4 class="news-card-title">${n.title}</h4>
+            <div class="news-card-footer">
+              <span>Ler notícia</span>
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          `;
+          grid.appendChild(a);
+        });
+
+        if (indicator) indicator.textContent = `Página ${currentNewsPage} de ${totalPages}`;
+        if (prevBtn) prevBtn.disabled = currentNewsPage <= 1;
+        if (nextBtn) nextBtn.disabled = currentNewsPage >= totalPages;
+      }
+
+      document.getElementById('prevNewsPage')?.addEventListener('click', () => {
+        if (currentNewsPage > 1) {
+          currentNewsPage--;
+          renderNewsPage();
+        }
+      });
+
+      document.getElementById('nextNewsPage')?.addEventListener('click', () => {
+        const totalPages = Math.ceil(allNewsArticles.length / CARDS_PER_PAGE) || 1;
+        if (currentNewsPage < totalPages) {
+          currentNewsPage++;
+          renderNewsPage();
+        }
+      });
+
+      document.getElementById('refreshNewsBtn')?.addEventListener('click', fetchNews);
+
+      /* ══ Notion Workspace Notes Engine ══ */
+      const notesModal = document.getElementById('notesModal');
+      const notesTabs = document.getElementById('notesTabs');
+      const notesText = document.getElementById('notesText');
+      const notesPreview = document.getElementById('notesPreview');
+      const toggleMdBtn = document.getElementById('toggleMdBtn');
+      const notesStatus = document.getElementById('notesStatus');
+      const noteTitleInput = document.getElementById('noteTitleInput');
+      let isMdPreview = false;
+
+      let currentNotes = [
+        { id: 'tab-1', title: 'Tarefas', content: '# Minhas Tarefas\n- [ ] Configurar atalhos CLI\n- [ ] Testar API do Clima\n- [x] Ajustar dock transparente' },
+        { id: 'tab-2', title: 'Comandos CLI', content: '```bash\ngo run main.go\ngit status\ncurl http://127.0.0.1:3000/clock\n```' }
+      ];
+      let activeTabId = 'tab-1';
+
+      function openNotesModal() {
+        closePopup();
+        notesModal.classList.add('open');
+        loadNotes();
+      }
+
+      function closeNotesModal() {
+        if (document.activeElement) document.activeElement.blur();
+        notesModal?.classList.remove('open');
+      }
+
+      document.getElementById('popupNotes')?.addEventListener('click', e => { e.stopPropagation(); openNotesModal(); });
+      document.getElementById('closeNotesBtn')?.addEventListener('click', closeNotesModal);
+
+      function renderMarkdown(mdText) {
+        if (!mdText) return '<em style="color:var(--muted)">Sua nota está vazia. Digite algo...</em>';
+        let html = mdText
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/^### (.*$)/gim, '<h3 style="color:var(--amber);margin:14px 0 6px 0;">$1</h3>')
+          .replace(/^## (.*$)/gim, '<h2 style="color:var(--amber);margin:18px 0 8px 0;">$1</h2>')
+          .replace(/^# (.*$)/gim, '<h1 style="color:var(--amber);margin:20px 0 10px 0;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:6px;">$1</h1>')
+          .replace(/- \[x\] (.*$)/gim, '<div style="color:var(--muted);text-decoration:line-through;margin:4px 0;"><i class="fas fa-check-square" style="color:var(--amber);margin-right:8px;"></i> $1</div>')
+          .replace(/- \[ \] (.*$)/gim, '<div style="margin:4px 0;"><i class="far fa-square" style="margin-right:8px;"></i> $1</div>')
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.*?)\*/g, '<em>$1</em>')
+          .replace(/```(.*?)```/gs, '<pre style="background:rgba(0,0,0,0.4);padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);font-family:var(--mono);overflow-x:auto;"><code>$1</code></pre>')
+          .replace(/`(.*?)`/g, '<code style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px;font-family:var(--mono);">$1</code>')
+          .replace(/^- (.*$)/gim, '<li style="margin-left:18px;">$1</li>')
+          .replace(/\n/g, '<br>');
+        return html;
+      }
+
+      if (toggleMdBtn) {
+        toggleMdBtn.addEventListener('click', () => {
+          isMdPreview = !isMdPreview;
+          if (isMdPreview) {
+            notesPreview.innerHTML = renderMarkdown(notesText.value);
+            notesPreview.classList.add('active');
+            notesText.classList.add('hidden');
+            toggleMdBtn.innerHTML = '<i class="fas fa-edit"></i> Editar Texto';
+          } else {
+            notesPreview.classList.remove('active');
+            notesText.classList.remove('hidden');
+            toggleMdBtn.innerHTML = '<i class="fab fa-markdown"></i> Visualizar MD';
+          }
+        });
+      }
+
+      async function loadNotes() {
+        try {
+          const res = await fetch('/api/notes');
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.length) currentNotes = data;
+          }
+        } catch (e) {
+          const local = localStorage.getItem('hub_scratchpad_notes');
+          if (local) currentNotes = JSON.parse(local);
+        }
+        renderNotesTabs();
+      }
+
+      function getNotionIcon(title) {
+        const t = (title || '').toLowerCase();
+        if (t.includes('tarefa') || t.includes('todo')) return '📋';
+        if (t.includes('cmd') || t.includes('cli') || t.includes('comando')) return '💻';
+        if (t.includes('projeto') || t.includes('dev')) return '🚀';
+        if (t.includes('ideia') || t.includes('meta')) return '🎯';
+        return '📄';
+      }
+
+      function renderNotesTabs() {
+        notesTabs.innerHTML = '';
+        currentNotes.forEach(tab => {
+          const div = document.createElement('div');
+          div.className = `notion-page-item ${tab.id === activeTabId ? 'active' : ''}`;
+          div.innerHTML = `
+            <div class="notion-page-title-wrap">
+              <span class="notion-page-icon">${getNotionIcon(tab.title)}</span>
+              <span>${tab.title}</span>
+            </div>
+            ${currentNotes.length > 1 ? '<button class="notion-page-del" title="Excluir página"><i class="fas fa-times"></i></button>' : ''}
+          `;
+
+          div.addEventListener('click', e => {
+            if (e.target.closest('.notion-page-del')) return;
+            switchNoteTab(tab.id);
+          });
+
+          const delBtn = div.querySelector('.notion-page-del');
+          if (delBtn) {
+            delBtn.addEventListener('click', e => {
+              e.stopPropagation();
+              if (confirm(`Excluir a página "${tab.title}"?`)) {
+                currentNotes = currentNotes.filter(n => n.id !== tab.id);
+                if (activeTabId === tab.id) activeTabId = currentNotes[0].id;
+                renderNotesTabs();
+                persistNotes();
+              }
+            });
+          }
+
+          notesTabs.appendChild(div);
+        });
+
+        const activeNote = currentNotes.find(n => n.id === activeTabId) || currentNotes[0];
+        if (activeNote) {
+          activeTabId = activeNote.id;
+          notesText.value = activeNote.content || '';
+          if (noteTitleInput) noteTitleInput.value = activeNote.title || 'Página Sem Título';
+          if (isMdPreview) notesPreview.innerHTML = renderMarkdown(notesText.value);
+        }
+      }
+
+      function switchNoteTab(id) {
+        saveActiveTabContent();
+        activeTabId = id;
+        renderNotesTabs();
+      }
+
+      function saveActiveTabContent() {
+        const note = currentNotes.find(n => n.id === activeTabId);
+        if (note) {
+          note.content = notesText.value;
+          if (noteTitleInput) note.title = noteTitleInput.value.trim() || 'Página Sem Título';
+          persistNotes();
+        }
+      }
+
+      if (noteTitleInput) {
+        noteTitleInput.addEventListener('input', () => {
+          const note = currentNotes.find(n => n.id === activeTabId);
+          if (note) {
+            note.title = noteTitleInput.value.trim() || 'Página Sem Título';
+            renderNotesTabs();
+            persistNotes();
+          }
+        });
+      }
+
+      let saveDebounce = null;
+      notesText.addEventListener('input', () => {
+        notesStatus.textContent = 'Salvando...';
+        clearTimeout(saveDebounce);
+        saveDebounce = setTimeout(() => {
+          saveActiveTabContent();
+        }, 500);
+      });
+
+      async function persistNotes() {
+        localStorage.setItem('hub_scratchpad_notes', JSON.stringify(currentNotes));
+        try {
+          const res = await fetch('/api/notes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(currentNotes)
+          });
+
+          if (res.ok) {
+            notesStatus.textContent = 'Salvo no banco de dados';
+          } else if (res.status === 401) {
+            const data = await res.json();
+            notesStatus.textContent = data.error || '🔒 Faça login para salvar no banco!';
+          } else {
+            notesStatus.textContent = 'Salvo localmente (Faça login no banco)';
+          }
+        } catch (e) {
+          notesStatus.textContent = 'Salvo localmente';
+        }
+      }
+
+      document.getElementById('addTabBtn')?.addEventListener('click', () => {
+        const name = prompt('Nome da nova página Notion:', 'Nova Página');
+        if (!name) return;
+        const newTab = { id: `tab-${Date.now()}`, title: name, content: '# ' + name + '\n' };
+        currentNotes.push(newTab);
+        activeTabId = newTab.id;
+        renderNotesTabs();
+        persistNotes();
+      });
+
+      document.getElementById('copyNotesBtn')?.addEventListener('click', () => {
+        navigator.clipboard.writeText(notesText.value);
+        notesStatus.textContent = 'Copiado para a área de transferência!';
+        setTimeout(() => notesStatus.textContent = 'Salvo no banco de dados', 2000);
+      });
+
+      document.getElementById('downloadNotesBtn')?.addEventListener('click', () => {
+        const activeNote = currentNotes.find(n => n.id === activeTabId);
+        const blob = new Blob([notesText.value], { type: 'text/markdown;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `${(activeNote ? activeNote.title : 'nota').toLowerCase()}.md`;
+        a.click();
+      });
+
+      /* ══ Auth Engine (Login, Register & Session Persistence) ══ */
+      const authBadge = document.getElementById('authBadge');
+      const authUserStr = document.getElementById('authUserStr');
+      const authForm = document.getElementById('authForm');
+      const tabAuthLogin = document.getElementById('tabAuthLogin');
+      const tabAuthRegister = document.getElementById('tabAuthRegister');
+      const submitAuthBtn = document.getElementById('submitAuthBtn');
+      const authErrorMsg = document.getElementById('authErrorMsg');
+      const authSuccessMsg = document.getElementById('authSuccessMsg');
+
+      let authMode = 'login';
+      let currentUser = null;
+
+      function openAuthModal() {
+        closePopup();
+        if (authModal) authModal.classList.add('open');
+      }
+
+      document.getElementById('popupAuth')?.addEventListener('click', e => { e.stopPropagation(); openAuthModal(); });
+      document.getElementById('closeAuthBtn')?.addEventListener('click', () => authModal?.classList.remove('open'));
+      document.getElementById('cancelAuthBtn')?.addEventListener('click', () => authModal?.classList.remove('open'));
+
+      if (tabAuthLogin && tabAuthRegister) {
+        tabAuthLogin.addEventListener('click', () => {
+          authMode = 'login';
+          tabAuthLogin.classList.add('active');
+          tabAuthRegister.classList.remove('active');
+          if (submitAuthBtn) submitAuthBtn.textContent = 'Entrar no Sistema';
+          hideAuthMsgs();
+        });
+
+        tabAuthRegister.addEventListener('click', () => {
+          authMode = 'register';
+          tabAuthRegister.classList.add('active');
+          tabAuthLogin.classList.remove('active');
+          if (submitAuthBtn) submitAuthBtn.textContent = 'Criar Conta no Banco';
+          hideAuthMsgs();
+        });
+      }
+
+      function hideAuthMsgs() {
+        if (authErrorMsg) authErrorMsg.style.display = 'none';
+        if (authSuccessMsg) authSuccessMsg.style.display = 'none';
+      }
+
+      if (authForm) {
+        authForm.addEventListener('submit', async e => {
+          e.preventDefault();
+          hideAuthMsgs();
+
+          const username = document.getElementById('authUsername').value.trim();
+          const password = document.getElementById('authPassword').value;
+          if (!username || !password) return;
+
+          const endpoint = authMode === 'login' ? '/api/login' : '/api/register';
+
+          try {
+            const res = await fetch(endpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ username, password })
+            });
+
+            const data = await res.json();
+            if (res.ok && data.success) {
+              currentUser = username;
+              if (authUserStr) authUserStr.textContent = `${username} (Sair)`;
+              if (authSuccessMsg) {
+                authSuccessMsg.textContent = authMode === 'login' ? 'Login realizado com sucesso!' : 'Conta criada com sucesso!';
+                authSuccessMsg.style.display = 'block';
+              }
+              setTimeout(() => {
+                if (authModal) authModal.classList.remove('open');
+                checkAuth();
+              }, 600);
+            } else {
+              if (authErrorMsg) {
+                authErrorMsg.textContent = data.error || 'Erro na autenticação.';
+                authErrorMsg.style.display = 'block';
+              }
+            }
+          } catch (err) {
+            if (authErrorMsg) {
+              authErrorMsg.textContent = 'Erro ao se comunicar com o servidor.';
+              authErrorMsg.style.display = 'block';
+            }
+          }
+        });
+      }
+
+      async function checkAuth() {
+        try {
+          const res = await fetch('/api/me');
+          if (res.ok) {
+            const data = await res.json();
+            if (data.authenticated && data.username) {
+              currentUser = data.username;
+              if (authUserStr) authUserStr.textContent = `${data.username} (Sair)`;
+            } else {
+              currentUser = null;
+              if (authUserStr) authUserStr.textContent = 'Entrar / Cadastrar';
+            }
+          }
+        } catch (e) {}
+      }
+
+      if (authBadge) {
+        authBadge.addEventListener('click', () => {
+          if (currentUser) {
+            if (confirm(`Deseja sair da conta ${currentUser}?`)) {
+              fetch('/api/logout', { method: 'POST' }).then(() => checkAuth());
+            }
+          } else {
+            openAuthModal();
+          }
+        });
+      }
+
+      checkAuth();
 
     })();
   </script>
