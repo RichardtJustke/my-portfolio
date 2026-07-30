@@ -5,6 +5,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>relógio — Brasília</title>
+  <link rel="icon" href="/assets/favicon.png?v=3" type="image/png">
+  <link rel="shortcut icon" href="/assets/favicon.png?v=3" type="image/png">
+  <link rel="apple-touch-icon" href="/assets/favicon.png?v=3">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#09090b">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1148,6 +1153,22 @@
       transform: scale(1.18);
     }
 
+    /* Official Brand Icon Images — Grayscale / Sem cor por padrão; Colorido no Hover */
+    .dock-icon-img {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+      border-radius: 4px;
+      filter: grayscale(100%) opacity(0.68);
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.25s ease, opacity 0.25s ease;
+    }
+
+    .dock-well:hover .dock-icon-img,
+    .dock-well.open .dock-icon-img {
+      transform: scale(1.20);
+      filter: grayscale(0%) opacity(1) drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+    }
+
     /* Color effect on hover per icon (Ref: /work style) */
     .dock-well.icon-wa:hover i { color: #25D366; filter: drop-shadow(0 0 8px rgba(37, 211, 102, 0.5)); }
     .dock-well.icon-gg:hover i { color: #4285F4; filter: drop-shadow(0 0 8px rgba(66, 133, 244, 0.5)); }
@@ -1688,20 +1709,35 @@
       <!-- Left Shortcuts -->
       <a class="dock-well icon-wa" href="https://web.whatsapp.com" target="_blank" rel="noopener">
         <span class="dock-tip">WhatsApp</span>
-        <i class="fab fa-whatsapp"></i>
+        <img class="dock-icon-img" src="https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/whatsapp.svg" alt="WhatsApp">
+      </a>
+
+      <a class="dock-well icon-gm" href="https://mail.google.com" target="_blank" rel="noopener">
+        <span class="dock-tip">Gmail</span>
+        <img class="dock-icon-img" src="https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/gmail.svg" alt="Gmail">
       </a>
 
       <a class="dock-well icon-gg" href="https://www.google.com" target="_blank" rel="noopener">
         <span class="dock-tip">Google</span>
-        <i class="fab fa-google"></i>
+        <img class="dock-icon-img" src="https://www.google.com/s2/favicons?domain=google.com&sz=64" alt="Google">
       </a>
 
       <a class="dock-well icon-yt" href="https://www.youtube.com" target="_blank" rel="noopener">
         <span class="dock-tip">YouTube</span>
-        <i class="fab fa-youtube"></i>
+        <img class="dock-icon-img" src="https://www.google.com/s2/favicons?domain=youtube.com&sz=64" alt="YouTube">
       </a>
 
-      <!-- CENTER: Home Icon (Casinha / Hub Trigger) -->
+      <a class="dock-well icon-no" href="https://notion.so" target="_blank" rel="noopener">
+        <span class="dock-tip">Notion</span>
+        <img class="dock-icon-img" src="https://www.google.com/s2/favicons?domain=notion.so&sz=64" alt="Notion">
+      </a>
+
+      <a class="dock-well icon-ex" href="https://excalidraw.com" target="_blank" rel="noopener">
+        <span class="dock-tip">Excalidraw</span>
+        <img class="dock-icon-img" src="https://www.google.com/s2/favicons?domain=excalidraw.com&sz=64" alt="Excalidraw">
+      </a>
+
+      <!-- CENTER: Home Icon (Casinha / Hub Trigger - ALWAYS IN THE EXACT CENTER) -->
       <div class="dock-well icon-hub" id="hubBtn" role="button" tabindex="0">
         <span class="dock-tip">Hub</span>
         <i class="fas fa-house"></i>
@@ -1809,19 +1845,34 @@
       </div>
 
       <!-- Right Shortcuts -->
+      <a class="dock-well icon-cl" href="https://claude.ai" target="_blank" rel="noopener">
+        <span class="dock-tip">Claude</span>
+        <img class="dock-icon-img" src="https://www.google.com/s2/favicons?domain=claude.ai&sz=64" alt="Claude">
+      </a>
+
+      <a class="dock-well icon-gpt" href="https://chatgpt.com" target="_blank" rel="noopener">
+        <span class="dock-tip">ChatGPT</span>
+        <img class="dock-icon-img" src="https://www.google.com/s2/favicons?domain=chatgpt.com&sz=64" alt="ChatGPT">
+      </a>
+
+      <a class="dock-well icon-gem" href="https://gemini.google.com" target="_blank" rel="noopener">
+        <span class="dock-tip">Gemini</span>
+        <img class="dock-icon-img" src="https://www.google.com/s2/favicons?domain=gemini.google.com&sz=64" alt="Gemini">
+      </a>
+
       <a class="dock-well icon-gh" href="https://github.com" target="_blank" rel="noopener">
         <span class="dock-tip">GitHub</span>
-        <i class="fab fa-github"></i>
+        <img class="dock-icon-img" src="https://www.google.com/s2/favicons?domain=github.com&sz=64" alt="GitHub">
       </a>
 
       <a class="dock-well icon-or" href="https://cloud.oracle.com" target="_blank" rel="noopener">
         <span class="dock-tip">Oracle Cloud</span>
-        <i class="fas fa-cloud"></i>
+        <img class="dock-icon-img" src="https://www.google.com/s2/favicons?domain=cloud.oracle.com&sz=64" alt="Oracle Cloud">
       </a>
 
       <a class="dock-well icon-lv" href="https://lovable.dev" target="_blank" rel="noopener">
         <span class="dock-tip">Lovable</span>
-        <i class="fas fa-wand-magic-sparkles"></i>
+        <img class="dock-icon-img" src="https://www.google.com/s2/favicons?domain=lovable.dev&sz=64" alt="Lovable">
       </a>
 
       <!-- Dynamic custom links -->
