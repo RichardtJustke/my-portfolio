@@ -1211,7 +1211,7 @@
     /* ── Dynamic Links Inside Pill ── */
     #dynamicDock { display: contents; }
 
-    /* ── Floating Speech Bubble Popup attached to Center Hub Icon (2-Column Command Center - Pure Glass) ── */
+    /* ── Floating Speech Bubble Popup attached to Center Hub Icon (2-Column Command Center - Glass Effect) ── */
     .hub-popup {
       position: absolute;
       bottom: calc(100% + 16px);
@@ -1223,9 +1223,9 @@
       background: rgba(255, 255, 255, 0.05) !important;
       border: 1px solid rgba(255, 255, 255, 0.25) !important;
       border-radius: 20px;
-      backdrop-filter: blur(32px) saturate(180%) !important;
-      -webkit-backdrop-filter: blur(32px) saturate(180%) !important;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4),
+      backdrop-filter: blur(28px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+      box-shadow: 0 16px 45px rgba(0, 0, 0, 0.35),
                   inset 0 1px 1px rgba(255, 255, 255, 0.45),
                   inset 0 -1px 1px rgba(255, 255, 255, 0.12) !important;
       padding: 14px;
@@ -1251,7 +1251,7 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      color: var(--amber);
+      color: rgba(255, 255, 255, 0.9);
       padding: 4px 8px 8px 8px;
       margin-bottom: 4px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -1278,8 +1278,8 @@
       background: rgba(255, 255, 255, 0.05) !important;
       border-right: 1px solid rgba(255, 255, 255, 0.25) !important;
       border-bottom: 1px solid rgba(255, 255, 255, 0.25) !important;
-      backdrop-filter: blur(32px) !important;
-      -webkit-backdrop-filter: blur(32px) !important;
+      backdrop-filter: blur(28px) !important;
+      -webkit-backdrop-filter: blur(28px) !important;
     }
 
     .popup-item {
@@ -1292,7 +1292,7 @@
       border-radius: 12px;
       background: none;
       border: none;
-      color: rgba(255, 255, 255, 0.75);
+      color: rgba(255, 255, 255, 0.85);
       font-family: var(--sans);
       font-size: 13.5px;
       font-weight: 500;
@@ -1302,13 +1302,14 @@
     }
 
     .popup-item:hover {
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.15);
       color: #ffffff;
     }
 
     .popup-item.active {
-      color: var(--amber);
-      background: rgba(199, 139, 74, 0.12);
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .pi-svg {
@@ -1353,15 +1354,11 @@
     #wallpaperInput { display: none; }
 
     /* ══════════════════════════════════
-       MODAL (add link)
-       ══════════════════════════════════ */
-    /* ══════════════════════════════════
-       MODAL (add link, weather, gallery, swing player - PURE GLASS THEME)
+       MODAL (add link, weather, gallery, swing player - DARK FROSTED GLASS THEME)
        ══════════════════════════════════ */
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.45) !important;
       backdrop-filter: blur(12px) !important;
       -webkit-backdrop-filter: blur(12px) !important;
       z-index: 400;
@@ -2105,13 +2102,13 @@
               <span class="popup-keys"><kbd>4</kbd></span>
             </button>
 
-            <button class="popup-item" id="popupSwingPlayer">
-              <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e056fd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <a class="popup-item" href="https://musica.richardtjustke.tech" target="_blank" rel="noopener">
+              <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
               </svg>
-              <span class="pi-label" style="color:#e056fd;">Swing Music</span>
+              <span class="pi-label">Swing Music</span>
               <span class="popup-keys"><kbd>M</kbd></span>
-            </button>
+            </a>
 
             <button class="popup-item" id="popupNotes">
               <svg class="pi-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2345,86 +2342,6 @@
       <div class="wall-gallery-grid" id="wallGalleryGrid">
         <div class="news-loading">Carregando wallpapers do banco...</div>
       </div>
-    </div>
-  </div>
-
-  <!-- ═══ SWING MUSIC PLAYER MODAL ═══ -->
-  <div class="modal-overlay" id="swingPlayerModal">
-    <div class="music-player-card">
-      <div class="mp-header">
-        <div class="mp-brand">
-          <div class="mp-brand-icon">
-            <i class="fas fa-music"></i>
-          </div>
-          <div>
-            <div class="mp-title">Swing Music</div>
-            <a class="mp-sub" href="https://musica.richardtjustke.tech" target="_blank" rel="noopener">
-              musica.richardtjustke.tech <i class="fas fa-external-link-alt" style="font-size: 9px;"></i>
-            </a>
-          </div>
-        </div>
-        <div class="mp-header-actions">
-          <button class="notes-btn" id="openSwingIframeBtn" title="Abrir Web App em Tela Cheia"><i class="fas fa-expand"></i> App Web</button>
-          <button class="notes-close" id="closeSwingPlayerBtn">&times;</button>
-        </div>
-      </div>
-
-      <!-- Disc & Soundwave Section -->
-      <div class="mp-disc-container">
-        <div class="vinyl-disc" id="vinylDisc">
-          <div class="vinyl-center">
-            <i class="fas fa-compact-disc"></i>
-          </div>
-        </div>
-        <div class="mp-track-info">
-          <h4 id="mpSongName">Swing Music Stream</h4>
-          <p id="mpArtistName">musica.richardtjustke.tech</p>
-          <div class="sound-wave" id="soundWave">
-            <span class="bar"></span>
-            <span class="bar"></span>
-            <span class="bar"></span>
-            <span class="bar"></span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Seeker / Progress Bar -->
-      <div class="mp-seeker-wrap">
-        <span class="mp-time" id="mpCurrentTime">0:00</span>
-        <div class="mp-seeker-bar" id="mpSeeker">
-          <div class="mp-seeker-fill" id="mpSeekerFill"></div>
-        </div>
-        <span class="mp-time" id="mpDuration">3:30</span>
-      </div>
-
-      <!-- Controls -->
-      <div class="mp-controls">
-        <button class="mp-btn" id="mpPrevBtn" title="Anterior"><i class="fas fa-step-backward"></i></button>
-        <button class="mp-btn mp-btn-play" id="mpPlayBtn" title="Play / Pause"><i class="fas fa-play" id="mpPlayIcon"></i></button>
-        <button class="mp-btn" id="mpNextBtn" title="Próximo"><i class="fas fa-step-forward"></i></button>
-
-        <div class="mp-vol-wrap">
-          <button class="mp-btn-sm" id="mpMuteBtn"><i class="fas fa-volume-high" id="mpVolIcon"></i></button>
-          <input type="range" class="mp-vol-slider" id="mpVolSlider" min="0" max="1" step="0.05" value="0.8">
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ SWING MUSIC IFRAME MODAL ═══ -->
-  <div class="modal-overlay" id="swingIframeModal">
-    <div class="swing-iframe-container">
-      <div class="wall-gallery-header">
-        <div class="wall-gallery-title">
-          <i class="fas fa-compact-disc" style="color:#e056fd;"></i>
-          <span>Swing Music — Web App</span>
-        </div>
-        <div style="display:flex; gap:8px;">
-          <a class="notes-btn" href="https://musica.richardtjustke.tech" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i> Nova Aba</a>
-          <button class="notes-close" id="closeSwingIframeBtn">&times;</button>
-        </div>
-      </div>
-      <iframe src="https://musica.richardtjustke.tech" class="swing-iframe" id="swingIframe" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
     </div>
   </div>
 
@@ -3030,174 +2947,12 @@
         toggleGlassEffect(true);
       }
 
-      /* ══ Swing Music Player Engine ══ */
-      const swingPlayerModal = document.getElementById('swingPlayerModal');
-      const swingIframeModal = document.getElementById('swingIframeModal');
-      const popupSwingPlayer = document.getElementById('popupSwingPlayer');
-      const dockSwingMusic = document.getElementById('dockSwingMusic');
-      const closeSwingPlayerBtn = document.getElementById('closeSwingPlayerBtn');
-      const openSwingIframeBtn = document.getElementById('openSwingIframeBtn');
-      const closeSwingIframeBtn = document.getElementById('closeSwingIframeBtn');
-
-      const mpPlayBtn = document.getElementById('mpPlayBtn');
-      const mpPlayIcon = document.getElementById('mpPlayIcon');
-      const vinylDisc = document.getElementById('vinylDisc');
-      const soundWave = document.getElementById('soundWave');
-      const mpCurrentTime = document.getElementById('mpCurrentTime');
-      const mpDuration = document.getElementById('mpDuration');
-      const mpSeeker = document.getElementById('mpSeeker');
-      const mpSeekerFill = document.getElementById('mpSeekerFill');
-      const mpVolSlider = document.getElementById('mpVolSlider');
-      const mpVolIcon = document.getElementById('mpVolIcon');
-      const mpMuteBtn = document.getElementById('mpMuteBtn');
-
-      let isPlaying = false;
-      let playerTimer = null;
-      let currentSecond = 0;
-      const totalDuration = 210; // 3:30
-
-      function openSwingPlayerModal() {
-        closePopup();
-        if (swingPlayerModal) swingPlayerModal.classList.add('open');
-      }
-
-      function openSwingIframeModal() {
-        if (swingPlayerModal) swingPlayerModal.classList.remove('open');
-        if (swingIframeModal) swingIframeModal.classList.add('open');
-      }
-
-      if (dockSwingMusic) {
-        dockSwingMusic.addEventListener('click', (e) => {
-          if (e.ctrlKey || e.metaKey || e.button === 1) return;
-          e.preventDefault();
-          openSwingPlayerModal();
-        });
-      }
-
-      if (popupSwingPlayer) {
-        popupSwingPlayer.addEventListener('click', (e) => {
-          e.stopPropagation();
-          openSwingPlayerModal();
-        });
-      }
-
-      if (closeSwingPlayerBtn) {
-        closeSwingPlayerBtn.addEventListener('click', () => {
-          swingPlayerModal.classList.remove('open');
-        });
-      }
-
-      if (openSwingIframeBtn) {
-        openSwingIframeBtn.addEventListener('click', openSwingIframeModal);
-      }
-
-      if (closeSwingIframeBtn) {
-        closeSwingIframeBtn.addEventListener('click', () => {
-          swingIframeModal.classList.remove('open');
-        });
-      }
-
-      function formatAudioTime(secs) {
-        const m = Math.floor(secs / 60);
-        const s = Math.floor(secs % 60);
-        return `${m}:${String(s).padStart(2, '0')}`;
-      }
-
-      function updateSeekerUI() {
-        if (mpCurrentTime) mpCurrentTime.textContent = formatAudioTime(currentSecond);
-        if (mpDuration) mpDuration.textContent = formatAudioTime(totalDuration);
-        const pct = (currentSecond / totalDuration) * 100;
-        if (mpSeekerFill) mpSeekerFill.style.width = `${pct}%`;
-      }
-
-      function togglePlay() {
-        isPlaying = !isPlaying;
-        if (isPlaying) {
-          if (mpPlayIcon) mpPlayIcon.className = 'fas fa-pause';
-          if (vinylDisc) vinylDisc.classList.add('playing');
-          if (soundWave) soundWave.classList.add('playing');
-          startAudioStream();
-        } else {
-          if (mpPlayIcon) mpPlayIcon.className = 'fas fa-play';
-          if (vinylDisc) vinylDisc.classList.remove('playing');
-          if (soundWave) soundWave.classList.remove('playing');
-          stopAudioStream();
-        }
-      }
-
-      function startAudioStream() {
-        if (playerTimer) clearInterval(playerTimer);
-        playerTimer = setInterval(() => {
-          currentSecond++;
-          if (currentSecond >= totalDuration) {
-            currentSecond = 0;
-          }
-          updateSeekerUI();
-        }, 1000);
-      }
-
-      function stopAudioStream() {
-        if (playerTimer) clearInterval(playerTimer);
-      }
-
-      if (mpPlayBtn) mpPlayBtn.addEventListener('click', togglePlay);
-
-      if (mpSeeker) {
-        mpSeeker.addEventListener('click', (e) => {
-          const rect = mpSeeker.getBoundingClientRect();
-          const clickX = e.clientX - rect.left;
-          const width = rect.width;
-          const pct = Math.max(0, Math.min(1, clickX / width));
-          currentSecond = Math.floor(pct * totalDuration);
-          updateSeekerUI();
-        });
-      }
-
-      if (mpVolSlider) {
-        mpVolSlider.addEventListener('input', (e) => {
-          const val = parseFloat(e.target.value);
-          if (!mpVolIcon) return;
-          if (val === 0) {
-            mpVolIcon.className = 'fas fa-volume-xmark';
-          } else if (val < 0.5) {
-            mpVolIcon.className = 'fas fa-volume-low';
-          } else {
-            mpVolIcon.className = 'fas fa-volume-high';
-          }
-        });
-      }
-
-      if (mpMuteBtn) {
-        let lastVol = 0.8;
-        mpMuteBtn.addEventListener('click', () => {
-          if (mpVolSlider.value > 0) {
-            lastVol = mpVolSlider.value;
-            mpVolSlider.value = 0;
-          } else {
-            mpVolSlider.value = lastVol;
-          }
-          mpVolSlider.dispatchEvent(new Event('input'));
-        });
-      }
-
-      document.getElementById('mpPrevBtn')?.addEventListener('click', () => {
-        currentSecond = 0;
-        updateSeekerUI();
-      });
-
-      document.getElementById('mpNextBtn')?.addEventListener('click', () => {
-        currentSecond = Math.min(currentSecond + 30, totalDuration);
-        updateSeekerUI();
-      });
-
       /* ══ Keyboard Shortcuts Engine ══ */
       function closeAllModals() {
         if (addModal) addModal.classList.remove('open');
         if (notesModal) notesModal.classList.remove('open');
         if (weatherModal) weatherModal.classList.remove('open');
         if (wallGalleryModal) wallGalleryModal.classList.remove('open');
-        if (swingPlayerModal) swingPlayerModal.classList.remove('open');
-        if (swingIframeModal) swingIframeModal.classList.remove('open');
         closePopup();
         if (document.activeElement && document.activeElement.blur) {
           document.activeElement.blur();
@@ -3215,9 +2970,7 @@
         const isModalOpen = (addModal && addModal.classList.contains('open')) ||
                             (notesModal && notesModal.classList.contains('open')) ||
                             (weatherModal && weatherModal.classList.contains('open')) ||
-                            (wallGalleryModal && wallGalleryModal.classList.contains('open')) ||
-                            (swingPlayerModal && swingPlayerModal.classList.contains('open')) ||
-                            (swingIframeModal && swingIframeModal.classList.contains('open'));
+                            (wallGalleryModal && wallGalleryModal.classList.contains('open'));
 
         // If a modal is open, do not execute global single-key navigation shortcuts
         if (isModalOpen) return;
@@ -3241,7 +2994,10 @@
         else if (k === 'v') { toggleGlassEffect(); closePopup(); }
         else if (k === 'a') { openAddModal(); closePopup(); }
         else if (k === 'n') { openNotesModal(); closePopup(); }
-        else if (k === 'm') { openSwingPlayerModal(); closePopup(); }
+        else if (k === 'm') {
+          window.open('https://musica.richardtjustke.tech', '_blank');
+          closePopup();
+        }
         else if (k === 'c') { openWeatherModal(); closePopup(); }
         else if (k === 'r') {
           const bg = document.getElementById('wallpaperBg');
