@@ -3,5 +3,10 @@
 .env
 my-portfolio-v2
 server
+test_build
+alteracoes
+docker-compose.yml
+Dockerfile
+README.md
 *.tmp
 *.log
