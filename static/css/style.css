@@ -83,6 +83,9 @@ nav {
 .hero canvas {
   flex-shrink: 0;
   margin-top: 4px;
+  width: 100px;
+  height: 100px;
+  image-rendering: pixelated;
 }
 
 .name {
@@ -657,5 +660,357 @@ textarea { height: 80px; padding-top: 12px; }
 
   .sig {
     font-size: 2.2rem;
+  }
+}
+
+/* ══════════════════════════════════
+   DITHER PAGE
+   ══════════════════════════════════ */
+
+.dither-intro {
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--muted);
+  max-width: 560px;
+}
+
+.matrix-code {
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--fg);
+  background: var(--faint);
+  padding: 20px;
+  border-radius: 8px;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.matrix-desc {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--muted);
+  margin-top: 16px;
+}
+
+.shader-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.shader-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.shader-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg);
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid var(--border);
+}
+
+.shader-code {
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--fg);
+  padding: 16px;
+  margin: 0;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.shader-desc {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+}
+
+.dither-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.dither-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.dither-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg);
+  margin-bottom: 8px;
+}
+
+.dither-desc {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.dither-pattern {
+  font-size: 11px;
+  color: var(--accent);
+  font-family: var(--mono);
+  margin-bottom: 4px;
+}
+
+.dither-use {
+  font-size: 11px;
+  color: var(--faint);
+  font-style: italic;
+}
+
+.file-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.file-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.file-name {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--fg);
+}
+
+.file-desc {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ══════════════════════════════════
+   DITHER LAB (INTERACTIVE)
+   ══════════════════════════════════ */
+
+.dither-lab {
+  display: flex;
+  gap: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  min-height: calc(100vh - 80px);
+}
+
+.dither-canvas-wrap {
+  flex: 1;
+  background: #000;
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  min-height: 500px;
+}
+
+.dither-canvas-wrap canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
+}
+
+.dither-hint {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--faint);
+}
+
+.dither-controls {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.control-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.control-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--faint);
+  text-transform: uppercase;
+}
+
+.shape-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.shape-btn {
+  background: var(--faint);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: var(--font);
+  font-size: 12px;
+  padding: 10px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.shape-btn:hover {
+  border-color: var(--accent);
+  color: var(--fg);
+}
+
+.shape-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.dither-select {
+  background: var(--faint);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  font-family: var(--font);
+  font-size: 13px;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.dither-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.color-palette {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.color-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.color-btn:hover {
+  transform: scale(1.1);
+}
+
+.color-btn.active {
+  border-color: var(--fg);
+  box-shadow: 0 0 0 2px var(--bg);
+}
+
+.hex-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  margin-left: auto;
+}
+
+.hex-input input[type="color"] {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background: none;
+  padding: 0;
+}
+
+.slider-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.slider-label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.slider-value {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  background: var(--faint);
+  border-radius: 2px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+@media (max-width: 768px) {
+  .dither-lab {
+    flex-direction: column;
+    padding: 16px;
+  }
+
+  .dither-canvas-wrap {
+    min-height: 300px;
+  }
+
+  .dither-controls {
+    width: 100%;
+  }
+
+  .shape-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
